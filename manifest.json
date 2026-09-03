@@ -1,0 +1,21 @@
+{
+  "name": "Tour Virtual TECMM Zapopan",
+  "short_name": "Tour TECMM",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1B396A",
+  "theme_color": "#1B396A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192.png?text=TECMM",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512.png?text=TECMM",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

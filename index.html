@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Ajusta el tamaño de la página al ancho de la pantalla del celular o computadora -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Virtual TECMM Zapopan</title>
+    
+    //<!-- Configuración para PWA Conecta el archivo JSON que permite instalar la web en la pantalla de inicio del celular -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1B396A">
+    
+    <!-- Estilos locales -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Encabezado de la App -->
+    <header class="app-header">
+        <h1>TECMM Campus Zapopan</h1>
+        <p id="tvLugarActual">Selecciona una ubicación del menú</p>
+    </header>
+
+    <!-- Barra de Navegación del Menú (Horizontal) -->
+    <nav class="menu-container">
+        <button class="btn-nav active" onclick="cargarLugar(0)">Entrada Principal</button>
+        <button class="btn-nav" onclick="cargarLugar(1)">Edificio Posgrados</button>
+        <button class="btn-nav" onclick="cargarLugar(2)">Laboratorios Sistemas</button>
+        <button class="btn-nav" onclick="cargarLugar(3)">Edificio Basicas </button>
+    </nav>
+
+    <!-- Contenedor del Visor 360° -->
+    <main class="viewer-container">
+        <iframe id="visor360" src="" allowfullscreen loading="lazy"></iframe>
+    </main>
+
+    <!-- Tarjeta Informativa del Lugar -->
+    <section class="info-card">
+        <h2 id="tvTituloLugar">Cargando...</h2>
+        <p id="tvDescripcion">Selecciona un punto en la barra superior para explorar la vista panorámica.</p>
+    </section>
+
+    <script src="app.js"></script>
+</body>
+</html>
