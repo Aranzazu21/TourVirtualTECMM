@@ -3,40 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tour Virtual TECMM Zapopan</title>
-    
-    <!-- Librería Pannellum JS y CSS para el visor 360 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <title>Tour Virtual 360° TECMM Zapopan</title>
 
-    <!-- Estilos locales -->
-    <link rel="stylesheet" href="styles.css">
+    <!-- Hojas de Estilo -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+    <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 
-    <!-- Encabezado de la App -->
-    <header class="app-header">
-        <h1>TECMM Campus Zapopan</h1>
-        <p id="tvLugarActual">Cargando ubicación...</p>
+    <!-- Encabezado / Menú Navegación Flotante -->
+    <header class="top-bar">
+        <div class="brand">
+            <span id="tvLugarActual" class="badge">Cargando...</span>
+        </div>
+
+        <nav class="nav-buttons">
+            <button class="btn-nav">Entrada Principal</button>
+            <button class="btn-nav">Ciencias Básicas</button>
+            <button class="btn-nav">Ing. Industrial</button>
+            <button class="btn-nav">Sistemas</button>
+        </nav>
+
+        <div class="filter-box">
+            <select id="selectCarreras" class="custom-select">
+                <option value="todas">Ver todas las carreras</option>
+                <option value="sistemas">Sistemas Computacionales</option>
+                <option value="industrial">Ing. Industrial</option>
+                <option value="basicas">Ciencias Básicas</option>
+                <option value="arquitectura">Arquitectura</option>
+                <option value="electromecanica">Electromecánica</option>
+            </select>
+        </div>
     </header>
 
-    <!-- Menú de navegación dinámico cargado desde Firestore -->
-    <nav id="menuNavegacion" class="menu-container">
-        <!-- Los botones de los edificios se generarán dinámicamente aquí -->
-    </nav>
+    <!-- Visor 360° WebGL -->
+    <main id="panorama"></main>
 
-    <!-- Contenedor del Visor 360 -->
-    <main class="viewer-container">
-        <div id="panorama"></div>
-    </main>
+    <!-- Tarjeta de Información -->
+    <div class="info-card">
+        <h2 id="tvTituloLugar">Cargando Escena...</h2>
+        <p id="tvDescripcion">Por favor espera mientras se inicializa el visor 360°.</p>
+    </div>
 
-    <!-- Tarjeta informativa inferior -->
-    <section class="info-card">
-        <h2 id="tvTituloLugar">Cargando...</h2>
-        <p id="tvDescripcion">Selecciona un punto en la barra superior o usa las flechas en la vista para avanzar.</p>
-    </section>
+    <!-- Interfaz del Chatbot -->
+    <div id="chatWidget" class="chat-widget">
+        <div class="chat-header">
+            <span>Asistente Virtual TECMM</span>
+        </div>
+        <div id="chatMessages" class="chat-messages">
+            <div class="chat-message bot">¡Hola! ¿Qué edificio o área del campus deseas visitar?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Ej. Llévame a Sistemas..." />
+            <button id="btnSendChat">Enviar</button>
+        </div>
+    </div>
 
-    <!-- Script principal con soporte para Firebase Módulos -->
-    <script type="module" src="app.js"></script>
+    <!-- Carga de scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
+=======
+
+/* Reseteo Global */
+>>>>>>> a0caf7c617dd54be7c2e4af378e14156664b4b56
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+<<<<<<< HEAD
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
@@ -92,3 +98,273 @@ body {
     color: #555555;
     line-height: 1.3;
 }
+=======
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+/* Visor 360° Acelerado WebGL */
+#panorama {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* Ocultar barra y cuadros de carga nativos de Pannellum */
+.pnlm-load-box,
+.pnlm-load-button,
+.pnlm-lbar,
+.pnlm-lbar-fill {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* barra superior*/
+.top-bar {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 94%;
+    max-width: 1280px;
+    background: #260b7b; /* Morado/Violeta Oficial TECMM */
+    padding: 10px 20px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    box-shadow: 0 10px 25px -5px rgba(38, 11, 123, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Botones en píldora idénticos al portal de estudiantes */
+.btn-nav {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-nav:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Botón Activo estilo Admisión TECMM */
+.btn-nav.active {
+    background: #f43f5e;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+}
+
+/* Select de Carreras personalizado */
+.custom-select {
+    background: #f59e0b; /* Ámbar/Naranja institucional */
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    outline: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.custom-select option {
+    background: #ffffff;
+    color: #1e293b;
+}
+
+/* targeta informativa */
+.info-card {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    z-index: 10;
+    width: 320px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+}
+
+.info-card h2 {
+    font-size: 1.15rem;
+    color: #260b7b;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.info-card p {
+    font-size: 0.88rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* botones interactivos */
+.chat-widget {
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    z-index: 100;
+    width: 340px;
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    background: #260b7b;
+    color: #ffffff;
+    padding: 14px 18px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-messages {
+    height: 220px;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #f8fafc;
+}
+
+.chat-message {
+    padding: 9px 13px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    max-width: 85%;
+    line-height: 1.35;
+}
+
+/* Burbuja Usuario */
+.chat-message.user {
+    background: #260b7b;
+    color: #ffffff;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+/* Burbuja Bot */
+.chat-message.bot {
+    background: #ffffff;
+    color: #1e293b;
+    align-self: flex-start;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/*  Botones de opciones interactivas en Árbol */
+.chat-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0;
+}
+
+.chat-chip {
+    background: #ffffff;
+    color: #260b7b;
+    border: 1px solid #260b7b;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.chat-chip:hover {
+    background: #260b7b;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Área de entrada de texto */
+.chat-input-area {
+    display: flex;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    padding: 6px;
+}
+
+.chat-input-area input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 10px;
+    color: #1e293b;
+    outline: none;
+    font-size: 0.85rem;
+}
+
+.chat-input-area button {
+    background: #260b7b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.chat-input-area button:hover {
+    background: #1b075c;
+}
+>>>>>>> a0caf7c617dd54be7c2e4af378e14156664b4b56
