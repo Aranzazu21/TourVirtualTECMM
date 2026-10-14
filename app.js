@@ -1,20 +1,20 @@
-// Importamos la conexión a BD desde nuestro nuevo servicio
-import { db } from "./js/services/FirebaseService.js";
+import { db } from "./services/FirebaseService.js";
 import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 let visorPannellum = null;
 let listaLugares = [];
+let lugarActualId = null;
 
 const tvLugarActual = document.getElementById("tvLugarActual");
 const tvTituloLugar = document.getElementById("tvTituloLugar");
 const tvDescripcion = document.getElementById("tvDescripcion");
 const menuNavegacion = document.getElementById("menuNavegacion");
+const selectFiltro = document.getElementById("selectCarreras");
 
 // 1. Escuchar áreas en tiempo real desde Firestore
 onSnapshot(collection(db, "lugares"), (snapshot) => {
     listaLugares = [];
-    menuNavegacion.innerHTML = "";
-
+    
     if (snapshot.empty) {
         tvTituloLugar.innerText = "Sin áreas registradas";
         tvDescripcion.innerText = "Utiliza el panel CMS para registrar áreas.";
@@ -25,24 +25,54 @@ onSnapshot(collection(db, "lugares"), (snapshot) => {
         listaLugares.push(doc.data());
     });
 
-    // Crear botones en el menú
-    listaLugares.forEach((lugar) => {
-        const btn = document.createElement("button");
-        btn.className = "btn-nav";
-        btn.innerText = lugar.nombre;
-        btn.addEventListener("click", () => mostrarLugar(lugar));
-        menuNavegacion.appendChild(btn);
-    });
+    // Renderizar botones la primera vez
+    renderizarBotonesMenu("todas");
 
-    // Cargar primer lugar automáticamente
+    // Cargar primer lugar automáticamente si no hay uno activo
     if (listaLugares.length > 0 && !visorPannellum) {
         mostrarLugar(listaLugares[0]);
     }
 });
 
-// 2. Renderizar área en Pannellum
+// 2. Función para pintar los botones de navegación (con soporte de filtro)
+function renderizarBotonesMenu(categoriaFiltro) {
+    menuNavegacion.innerHTML = ""; // Limpiar menú
+    
+    let lugaresFiltrados = listaLugares;
+    if(categoriaFiltro !== "todas") {
+        lugaresFiltrados = listaLugares.filter(l => l.categoria === categoriaFiltro);
+    }
+
+    if(lugaresFiltrados.length === 0) {
+        menuNavegacion.innerHTML = '<span style="color:white; font-size:0.85rem;">No hay áreas en esta categoría</span>';
+        return;
+    }
+
+    lugaresFiltrados.forEach((lugar) => {
+        const btn = document.createElement("button");
+        btn.className = "btn-nav";
+        // Si el botón que estamos creando es el del área actual, lo marcamos como activo
+        if(lugar.id === lugarActualId) {
+            btn.classList.add("active");
+        }
+        btn.innerText = lugar.nombre;
+        btn.addEventListener("click", () => mostrarLugar(lugar));
+        menuNavegacion.appendChild(btn);
+    });
+}
+
+// 3. Escuchar cambios en el selector de categorías (Filtro)
+selectFiltro.addEventListener("change", (e) => {
+    renderizarBotonesMenu(e.target.value);
+});
+
+
+// 4. Renderizar área en Pannellum
 function mostrarLugar(lugar) {
-    tvLugarActual.innerText = `Ubicación: ${lugar.nombre}`;
+    lugarActualId = lugar.id; // Guardar ID actual para iluminar el botón
+    renderizarBotonesMenu(selectFiltro.value); // Refrescar los botones para actualizar la clase "active"
+
+    tvLugarActual.innerText = lugar.nombre;
     tvTituloLugar.innerText = lugar.nombre;
     tvDescripcion.innerText = lugar.descripcion;
 
@@ -68,15 +98,9 @@ function mostrarLugar(lugar) {
         showFullscreenCtrl: true,
         hotSpots: hotSpotsFormateados
     });
-
-    // Herramienta para obtener coordenadas haciendo clic en la foto (Míralas en consola con F12)
-    visorPannellum.on('mousedown', (e) => {
-        const coords = visorPannellum.mouseEventToCoords(e);
-        console.log(`📍 Coordenadas -> Pitch: ${coords[0].toFixed(2)}, Yaw: ${coords[1].toFixed(2)}`);
-    });
 }
 
-// 3. Transición entre áreas
+// 5. Transición entre áreas mediante Hotspots
 function cambiarAEscenaPorId(destinoId) {
     const lugarDestino = listaLugares.find(l => l.id === destinoId);
     if (lugarDestino) {
