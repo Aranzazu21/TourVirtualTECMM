@@ -1,37 +1,23 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-// Configuración con tus claves de Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBOnHVSB_Mg_YcCopEDnm-Qg4IjRNNmXys",
-  authDomain: "tour-virtual-tecmm.firebaseapp.com",
-  projectId: "tour-virtual-tecmm",
-  storageBucket: "tour-virtual-tecmm.firebasestorage.app",
-  messagingSenderId: "890959572345",
-  appId: "1:890959572345:web:d7f64047d74c6298aa13a8",
-  measurementId: "G-LHWT7845Z4"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Importamos la conexión a BD desde nuestro nuevo servicio
+import { db } from "./services/FirebaseService.js";
+import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 let visorPannellum = null;
 let listaLugares = [];
 
-// Elementos del DOM
 const tvLugarActual = document.getElementById("tvLugarActual");
 const tvTituloLugar = document.getElementById("tvTituloLugar");
 const tvDescripcion = document.getElementById("tvDescripcion");
 const menuNavegacion = document.getElementById("menuNavegacion");
 
-// 1. Escuchar lugares en tiempo real desde Firestore
+// 1. Escuchar áreas en tiempo real desde Firestore
 onSnapshot(collection(db, "lugares"), (snapshot) => {
     listaLugares = [];
     menuNavegacion.innerHTML = "";
 
     if (snapshot.empty) {
         tvTituloLugar.innerText = "Sin áreas registradas";
-        tvDescripcion.innerText = "Utiliza el panel CMS (admin.html) para registrar las primeras áreas del campus.";
+        tvDescripcion.innerText = "Utiliza el panel CMS para registrar áreas.";
         return;
     }
 
@@ -39,8 +25,8 @@ onSnapshot(collection(db, "lugares"), (snapshot) => {
         listaLugares.push(doc.data());
     });
 
-    // Generar botones de navegación por cada lugar registrado en el CMS
-    listaLugares.forEach((lugar, index) => {
+    // Crear botones en el menú
+    listaLugares.forEach((lugar) => {
         const btn = document.createElement("button");
         btn.className = "btn-nav";
         btn.innerText = lugar.nombre;
@@ -48,32 +34,54 @@ onSnapshot(collection(db, "lugares"), (snapshot) => {
         menuNavegacion.appendChild(btn);
     });
 
-    // Cargar automáticamente el primer lugar registrado
-    if (listaLugares.length > 0) {
+    // Cargar primer lugar automáticamente
+    if (listaLugares.length > 0 && !visorPannellum) {
         mostrarLugar(listaLugares[0]);
     }
 });
 
-// 2. Cargar la imagen 360° en el visor de Pannellum
+// 2. Renderizar área en Pannellum
 function mostrarLugar(lugar) {
-    // Actualizar texto de información
     tvLugarActual.innerText = `Ubicación: ${lugar.nombre}`;
     tvTituloLugar.innerText = lugar.nombre;
     tvDescripcion.innerText = lugar.descripcion;
 
-    // Si ya hay un visor activo, lo destruimos para renderizar la nueva área
     if (visorPannellum) {
         visorPannellum.destroy();
     }
 
-    // Inicializar visor Pannellum
+    // Formatear los hotspots guardados
+    const hotSpotsFormateados = (lugar.hotSpots || []).map((hs) => ({
+        pitch: hs.pitch,
+        yaw: hs.yaw,
+        type: "info",
+        text: hs.texto || `Ir a ${hs.destinoId}`,
+        clickHandlerFunc: () => cambiarAEscenaPorId(hs.destinoId)
+    }));
+
     visorPannellum = pannellum.viewer('panorama', {
         type: 'equirectangular',
-        panorama: lugar.imagen, // Ruta local guardada desde el CMS (ej. assets/imagenes/biblioteca.jpg)
+        panorama: lugar.imagen,
         autoLoad: true,
-        autoRotate: -2, // Rotación suave automática
-        compass: false,
+        autoRotate: -1,
         showZoomCtrl: true,
-        showFullscreenCtrl: true
+        showFullscreenCtrl: true,
+        hotSpots: hotSpotsFormateados
     });
+
+    // Herramienta para obtener coordenadas haciendo clic en la foto (Míralas en consola con F12)
+    visorPannellum.on('mousedown', (e) => {
+        const coords = visorPannellum.mouseEventToCoords(e);
+        console.log(`📍 Coordenadas -> Pitch: ${coords[0].toFixed(2)}, Yaw: ${coords[1].toFixed(2)}`);
+    });
+}
+
+// 3. Transición entre áreas
+function cambiarAEscenaPorId(destinoId) {
+    const lugarDestino = listaLugares.find(l => l.id === destinoId);
+    if (lugarDestino) {
+        mostrarLugar(lugarDestino);
+    } else {
+        alert("El área de destino no se encuentra disponible.");
+    }
 }
