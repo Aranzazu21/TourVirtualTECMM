@@ -113,6 +113,23 @@ export class Chatbot {
             });
         }
 
+        // Control para minimizar y reabrir el asistente
+        const chatWidget = document.getElementById("chatWidget");
+        const btnMinimizar = document.getElementById("btnMinimizarChat");
+        const btnAbrir = document.getElementById("btnAbrirChat");
+
+        if (btnMinimizar && btnAbrir && chatWidget) {
+            btnMinimizar.addEventListener("click", () => {
+                chatWidget.classList.add("minimizado");
+                btnAbrir.style.display = "flex";
+            });
+
+            btnAbrir.addEventListener("click", () => {
+                chatWidget.classList.remove("minimizado");
+                btnAbrir.style.display = "none";
+            });
+        }
+
         // Carga los botones de opciones iniciales al cargar la página
         setTimeout(() => {
             this.mostrarOpciones("inicio");

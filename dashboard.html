@@ -3,112 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard CMS - Tour TECMM</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Panel de Administración (CMS) - Tour TECMM</title>
+    
     <style>
-        .admin-body {
-            padding: 20px;
-            overflow-y: auto;
-            background-color: #f4f6f9;
-            font-family: Arial, sans-serif;
-        }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #1B396A;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .btn-logout {
-            background-color: #d9534f;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .panel-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .form-group label {
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .full-width {
-            grid-column: span 2;
-        }
-        .btn-submit {
-            background-color: #1B396A;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-        th {
-            background-color: #e9ecef;
-            color: #1B396A;
-        }
-        .btn-eliminar {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; padding: 20px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; background-color: #260b7b; color: white; padding: 18px 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(38, 11, 123, 0.2); }
+        .admin-header h2 { font-size: 1.3rem; font-weight: 700; }
+        .btn-logout { background-color: #f43f5e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .btn-logout:hover { background-color: #e11d48; transform: translateY(-1px); }
+        .panel-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .panel-card h3 { color: #260b7b; margin-bottom: 20px; font-size: 1.1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; color: #475569; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background-color: #f8fafc; color: #1e293b; font-size: 0.9rem; outline: none; transition: border 0.2s ease; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #260b7b; background-color: #ffffff; }
+        .form-group input:disabled { background-color: #e2e8f0; cursor: not-allowed; color: #64748b; }
+        .full-width { grid-column: span 2; }
+        
+        /* Botones principales */
+        .btn-submit { background-color: #260b7b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background 0.2s ease; }
+        .btn-submit:hover { background-color: #1b075c; }
+        .btn-cancelar { background-color: #64748b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; margin-left: 10px; transition: background 0.2s ease; }
+        .btn-cancelar:hover { background-color: #475569; }
+        .btn-hotspot { background-color: #f59e0b; color: white; }
+        .btn-hotspot:hover { background-color: #d97706; }
+        
+        /* Tabla y Botones de acción */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 0.9rem; }
+        th { background-color: #f1f5f9; color: #475569; font-weight: 600; }
+        
+        .btn-eliminar { background-color: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-left: 5px; }
+        .btn-eliminar:hover { background-color: #dc2626; }
+        .btn-editar { background-color: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; }
+        .btn-editar:hover { background-color: #2563eb; }
+        .btn-gestionar { background-color: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-left: 5px; }
+        .btn-gestionar:hover { background-color: #d97706; }
+        .badge-hotspots { background-color: #10b981; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+
+        /* Estilos de la Ventana Modal para gestionar flechas */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 550px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .modal-header h3 { color: #260b7b; font-size: 1.2rem; }
+        .btn-cerrar { background: transparent; border: none; font-size: 1.8rem; cursor: pointer; color: #64748b; line-height: 1; }
+        .btn-cerrar:hover { color: #ef4444; }
+        .hotspot-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; }
+        .hotspot-info { display: flex; flex-direction: column; gap: 5px; }
+        .hotspot-info strong { color: #1e293b; font-size: 0.95rem; }
+        .hotspot-info span { font-size: 0.8rem; color: #64748b; }
     </style>
 </head>
-<body class="admin-body">
+<body>
 
     <header class="admin-header">
         <h2>Panel de Administración (CMS) - Tour TECMM</h2>
         <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
     </header>
 
+    <!-- FORMULARIO 1: REGISTRO / EDICIÓN -->
     <section class="panel-card">
-        <h3>Registrar Nueva Área / Nodo 360°</h3>
-        <form id="formNodo" style="margin-top: 15px;">
+        <h3 id="tituloFormularioNodo">1. Registrar Nueva Área / Nodo 360°</h3>
+        <form id="formNodo">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="idNodo">ID Único (ej. biblioteca, posgrados):</label>
+                    <label for="idNodo">ID Único (No se puede cambiar al editar):</label>
                     <input type="text" id="idNodo" required placeholder="sin_espacios">
                 </div>
                 <div class="form-group">
@@ -131,14 +92,53 @@
                 </div>
                 <div class="form-group full-width">
                     <label for="descripcionNodo">Descripción del Área:</label>
-                    <textarea id="descripcionNodo" rows="3" required placeholder="Escribe detalles del lugar..."></textarea>
+                    <textarea id="descripcionNodo" rows="2" required placeholder="Escribe detalles del lugar..."></textarea>
                 </div>
             </div>
-            <button type="submit" id="btnGuardar" class="btn-submit">Guardar Área en Firestore</button>
+            <div>
+                <button type="submit" id="btnSubmitNodo" class="btn-submit">Guardar Área en Firestore</button>
+                <button type="button" id="btnCancelarEdicion" class="btn-cancelar" style="display:none;" onclick="cancelarEdicion()">Cancelar Edición</button>
+            </div>
             <p id="msjEstado" style="font-weight: bold; margin-top: 10px;"></p>
         </form>
     </section>
 
+    <!-- FORMULARIO 2: REGISTRO DE HOTSPOTS -->
+    <section class="panel-card">
+        <h3>2. Agregar Flecha de Navegación (Hotspot)</h3>
+        <form id="formHotspot">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="selectOrigen">Área de Origen (Dónde estás parado):</label>
+                    <select id="selectOrigen" required>
+                        <option value="">Cargando áreas...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="selectDestino">Área de Destino (Hacia dónde irás):</label>
+                    <select id="selectDestino" required>
+                        <option value="">Cargando áreas...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pitchHotspot">Pitch (Inclinación Vertical):</label>
+                    <input type="number" step="any" id="pitchHotspot" required placeholder="Ej. -5.10">
+                </div>
+                <div class="form-group">
+                    <label for="yawHotspot">Yaw (Giro Horizontal):</label>
+                    <input type="number" step="any" id="yawHotspot" required placeholder="Ej. 180.45">
+                </div>
+                <div class="form-group full-width">
+                    <label for="textoHotspot">Texto Flotante:</label>
+                    <input type="text" id="textoHotspot" required placeholder="Ej. Avanzar al Edificio de Sistemas">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit btn-hotspot">Crear Flecha de Navegación</button>
+            <p id="msjHotspotEstado" style="font-weight: bold; margin-top: 10px;"></p>
+        </form>
+    </section>
+
+    <!-- TABLA DE CONTROL -->
     <section class="panel-card">
         <h3>Áreas Registradas en el Campus</h3>
         <table>
@@ -148,14 +148,28 @@
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Ruta Imagen</th>
+                    <th>Hotspots</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="tablaNodosBody">
-                <tr><td colspan="5">Cargando áreas de Firestore...</td></tr>
+                <tr><td colspan="6">Cargando áreas de Firestore...</td></tr>
             </tbody>
         </table>
     </section>
+
+    <!-- MODAL PARA GESTIONAR HOTSPOTS (Oculto por defecto) -->
+    <div id="modalHotspots" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitulo">Gestionar Flechas</h3>
+                <button class="btn-cerrar" onclick="cerrarModalHotspots()">&times;</button>
+            </div>
+            <div id="listaHotspots">
+                <!-- Se llenará con JavaScript -->
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="dashboard.js"></script>
 </body>

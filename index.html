@@ -11,19 +11,20 @@
 </head>
 <body>
 
-    <!-- Encabezado / Menú Navegación Flotante -->
+    <!-- Encabezado / Menú Navegación Flotante Minimalista -->
     <header class="top-bar">
         <div class="brand">
             <span id="tvLugarActual" class="badge">Cargando...</span>
         </div>
 
-        <!-- Aquí se inyectarán los botones de Firebase automáticamente -->
         <nav id="menuNavegacion" class="nav-buttons">
+            <!-- Botones inyectados dinámicamente desde Firestore -->
         </nav>
 
         <div class="filter-box">
             <select id="selectCarreras" class="custom-select">
                 <option value="todas">Ver todas las áreas</option>
+                <option value="Accesos">Accesos</option>
                 <option value="Andadores">Andadores</option>
                 <option value="Aulas">Aulas</option>
                 <option value="Laboratorios">Laboratorios</option>
@@ -45,6 +46,7 @@
     <div id="chatWidget" class="chat-widget">
         <div class="chat-header">
             <span>Asistente Virtual TECMM</span>
+            <button id="btnMinimizarChat" class="btn-chat-toggle" title="Minimizar">✕</button>
         </div>
         <div id="chatMessages" class="chat-messages">
             <div class="chat-message bot">¡Hola! ¿Qué edificio o área del campus deseas visitar?</div>
@@ -55,8 +57,13 @@
         </div>
     </div>
 
-    <!-- Carga de scripts -->
+    <!-- Botón Flotante para reabrir el Chatbot -->
+    <button id="btnAbrirChat" class="chat-floating-btn" style="display: none;" title="Abrir Asistente">
+        <span>💬</span> Asistente Virtual
+    </button>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
-    <script type="module" src="app.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
