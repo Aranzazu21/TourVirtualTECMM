@@ -1,4 +1,4 @@
-import { db } from "./services/FirebaseService.js";
+import { db } from "./js/services/FirebaseService.js";
 import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 let visorPannellum = null;
