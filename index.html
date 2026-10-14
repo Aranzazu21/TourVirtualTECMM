@@ -11,25 +11,19 @@
 </head>
 <body>
 
-    <!-- Encabezado / Menú Navegación Flotante Minimalista -->
-    <header class="top-bar">
+    <!-- Encabezado Compacto Minimalista -->
+    <header class="top-bar compact">
         <div class="brand">
-            <span id="tvLugarActual" class="badge">Cargando...</span>
+            <!-- Aquí se muestra únicamente el nombre del lugar actual -->
+            <span id="tvLugarActual" class="badge-lugar">Cargando...</span>
         </div>
 
-        <nav id="menuNavegacion" class="nav-buttons">
-            <!-- Botones inyectados dinámicamente desde Firestore -->
-        </nav>
-
-        <div class="filter-box">
-            <select id="selectCarreras" class="custom-select">
-                <option value="todas">Ver todas las áreas</option>
-                <option value="Accesos">Accesos</option>
-                <option value="Andadores">Andadores</option>
-                <option value="Aulas">Aulas</option>
-                <option value="Laboratorios">Laboratorios</option>
-                <option value="Servicios">Servicios</option>
-            </select>
+        <div class="nav-dropdown-container">
+            <button id="btnToggleMenu" class="btn-explorar">📍 Explorar Campus ▼</button>
+            <!-- Pestaña desplegable oculta por defecto -->
+            <div id="menuNavegacion" class="dropdown-content">
+                <!-- Las ubicaciones se inyectarán aquí automáticamente -->
+            </div>
         </div>
     </header>
 
@@ -42,8 +36,8 @@
         <p id="tvDescripcion">Por favor espera mientras se inicializa el visor 360°.</p>
     </div>
 
-    <!-- Interfaz del Chatbot -->
-    <div id="chatWidget" class="chat-widget">
+    <!-- Interfaz del Chatbot (Inicia CERRADO con la clase 'minimizado') -->
+    <div id="chatWidget" class="chat-widget minimizado">
         <div class="chat-header">
             <span>Asistente Virtual TECMM</span>
             <button id="btnMinimizarChat" class="btn-chat-toggle" title="Minimizar">✕</button>
@@ -56,6 +50,11 @@
             <button id="btnSendChat">Enviar</button>
         </div>
     </div>
+
+    <!-- Botón Flotante para reabrir el Chatbot (VISIBLE POR DEFECTO) -->
+    <button id="btnAbrirChat" class="chat-floating-btn" title="Abrir Asistente">
+        <span>💬</span> Asistente Virtual
+    </button>
 
     <!-- Botón Flotante para reabrir el Chatbot -->
     <button id="btnAbrirChat" class="chat-floating-btn" style="display: none;" title="Abrir Asistente">

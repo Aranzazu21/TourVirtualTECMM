@@ -36,18 +36,16 @@ window.addEventListener("DOMContentLoaded", () => {
                 descripcion: data.descripcion,
                 imagen: data.imagen,
                 
-                // <-- USAMOS TU NUEVO MÓDULO PARA FORMATEAR LOS DATOS -->
+                // <-- USAMOS EL NUEVO MÓDULO PARA FORMATEAR LOS DATOS -->
                 hotSpots: Hotspots.mapearDesdeFirebase(data.hotSpots)
             });
         });
 
-        // 2. Si es la primera vez que carga, inicializamos todo el sistema de tu compañero
+        // 2. Si es la primera vez que carga, inicializamos todo el sistema 
         if (!tourViewer && lugaresCampusNube.length > 0) {
             inicializarSistema(lugaresCampusNube);
         } else if (tourViewer) {
-            // Si ya estaba cargado, podrías implementar una lógica para refrescar las escenas,
-            // pero Pannellum requiere destruir y recrear el visor para inyectar nuevas escenas.
-            // Para fines prácticos, obligamos a recargar la página para ver cambios fuertes estructurales.
+           
             console.log("Se detectaron cambios en la BD. Recarga la página para aplicar los nuevos nodos.");
         }
     });
@@ -55,46 +53,71 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 function inicializarSistema(lugares) {
-    // 1. En lugar de quemar los IDs, obtenemos TODOS los IDs de las áreas que tienes en Firebase
     const todosLosIds = lugares.map(lugar => lugar.id);
 
-    // Instanciar Controlador de Interfaz HTML pasándole todos los IDs
+    // Instanciar Controlador de Interfaz HTML
     uiController = new UIController(lugares, todosLosIds);
 
-    // Instanciar Motor 360° con callback de actualización
+    // Instanciar Motor 360° con callback para actualizar la UI al cambiar de escena
     tourViewer = new TourViewer('panorama', lugares, (idEscenaActual) => {
         uiController.actualizarDetalles(idEscenaActual);
+        
+        // Actualizar la etiqueta superior con el nombre del lugar actual
+        const lugarActual = lugares.find(l => l.id === idEscenaActual);
+        const tvLugarActual = document.getElementById("tvLugarActual");
+        if (tvLugarActual && lugarActual) {
+            tvLugarActual.innerText = lugarActual.nombre;
+        }
     });
 
-    // Inicializar visor en la primera escena disponible
-    const escenaInicial = lugares[0] ? lugares[0].id : "entrada";
+    // Forzar siempre el inicio en la Entrada Principal
+    // (Verifica si el ID "entrada" existe, si no, toma el primero que encuentre)
+    const escenaInicial = lugares.some(lugar => lugar.id === "entrada") ? "entrada" : (lugares[0] ? lugares[0].id : "entrada");
+    
     tourViewer.inicializar(escenaInicial);
-
-    // Instanciar e inicializar Chatbot
+    // Instanciar Chatbot
     chatbot = new Chatbot(tourViewer, uiController, lugares);
     chatbot.inicializar();
 
-    // Configurar eventos dinámicos de los botones del menú superior
+    // ==========================================
+    // LÓGICA DEL MENÚ DESPLEGABLE RÁPIDO
+    // ==========================================
     const navContenedor = document.getElementById("menuNavegacion");
-    if(navContenedor) {
-        navContenedor.innerHTML = ""; // Limpiar hardcoded
+    const btnToggleMenu = document.getElementById("btnToggleMenu");
+
+    if (btnToggleMenu && navContenedor) {
+        // 1. Abrir/Cerrar el menú al presionar "Explorar Campus"
+        btnToggleMenu.addEventListener("click", (e) => {
+            e.stopPropagation(); // Evita que se cierre instantáneamente
+            navContenedor.classList.toggle("show");
+        });
+
+        // 2. Cerrar el menú si haces clic en cualquier otra parte de la pantalla
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".nav-dropdown-container")) {
+                navContenedor.classList.remove("show");
+            }
+        });
+
+        // 3. Llenar el menú desplegable con las áreas de Firebase
+        navContenedor.innerHTML = ""; 
         
-        // 2. Crear un botón de navegación para CADA LUGAR registrado en la base de datos
-        lugares.forEach((lugarEncontrado) => {
+        lugares.forEach((lugar) => {
             const btn = document.createElement("button");
             btn.className = "btn-nav";
-            btn.innerText = lugarEncontrado.nombre; // El nombre visible que le diste en el CMS
+            btn.innerText = `📍 ${lugar.nombre}`;
             
-            // Evento para cambiar de escena al hacer clic
+            // 4. Al hacer clic, viajar a esa área y ocultar el menú
             btn.addEventListener("click", () => {
-                tourViewer.cargarEscenaPorId(lugarEncontrado.id);
+                tourViewer.cargarEscenaPorId(lugar.id);
+                navContenedor.classList.remove("show"); 
             });
             
             navContenedor.appendChild(btn);
         });
     }
 
-    // Listener para filtros por carrera
+    // Filtros
     const selectCarreras = document.getElementById("selectCarreras");
     if (selectCarreras) {
         selectCarreras.addEventListener("change", (e) => {
@@ -102,11 +125,3 @@ function inicializarSistema(lugares) {
         });
     }
 }
-
-    // Listener para filtros por carrera
-    const selectCarreras = document.getElementById("selectCarreras");
-    if (selectCarreras) {
-        selectCarreras.addEventListener("change", (e) => {
-            uiController.filtrarPorCarrera(e.target.value, tourViewer);
-        });
-    }

@@ -31,107 +31,97 @@ body, html {
     display: none !important;
 }
 
-/* BARRA SUPERIOR ESTILO CRISTAL TRANSLÚCIDO (COMPACTA) */
-.top-bar {
+/* ==========================================
+   BARRA SUPERIOR COMPACTA Y DESPLEGABLE
+   ========================================== */
+.top-bar.compact {
     position: absolute;
-    top: 14px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
-    width: 92%;
-    max-width: 1200px;
-    /* Fondo morado institucional con transparencia y desenfoque */
-    background: rgba(38, 11, 123, 0.65);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(38, 11, 123, 0.75); /* Morado TECMM translúcido */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 16px;
     border-radius: 30px;
-    display: flex;
-    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    width: auto;
+    min-width: 250px;
     justify-content: space-between;
-    gap: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.brand {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.badge {
-    background: rgba(255, 255, 255, 0.15);
+.badge-lugar {
     color: #ffffff;
-    padding: 4px 10px;
-    border-radius: 16px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+    font-size: 0.95rem;
     white-space: nowrap;
 }
 
-/* Contenedor de botones en una sola fila desplazable */
-.nav-buttons {
-    display: flex;
-    gap: 6px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    max-width: 65%;
-    scrollbar-width: none; /* Oculta scroll en Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-    padding: 2px 0;
+.nav-dropdown-container {
+    position: relative;
 }
 
-.nav-buttons::-webkit-scrollbar {
-    display: none; /* Oculta scroll en Chrome/Safari */
-}
-
-.btn-nav {
-    background: rgba(255, 255, 255, 0.12);
+.btn-explorar {
+    background: #f59e0b; /* Ámbar institucional */
     color: #ffffff;
     border: none;
-    padding: 5px 12px;
-    border-radius: 16px;
+    padding: 6px 14px;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 0.78rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s ease, transform 0.2s;
+}
+
+.btn-explorar:hover {
+    background: #d97706;
+    transform: scale(1.05);
+}
+
+/* Contenedor de la pestaña desplegable */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 140%;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    min-width: 240px;
+    max-height: 50vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    flex-direction: column;
+    padding: 10px;
+    gap: 4px;
+}
+
+.dropdown-content.show {
+    display: flex; /* Se activa mediante JavaScript */
+}
+
+/* Diseño de los botones de cada área dentro del menú */
+.btn-nav {
+    background: transparent;
+    color: #1e293b;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
     font-weight: 500;
-    white-space: nowrap;
-    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .btn-nav:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
-}
-
-.btn-nav.active {
-    background: #f43f5e;
-    color: #ffffff;
-    font-weight: 700;
-    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.45);
-}
-
-.filter-box {
-    flex-shrink: 0;
-}
-
-.custom-select {
-    background: #f59e0b;
-    color: #ffffff;
-    border: none;
-    padding: 5px 12px;
-    border-radius: 16px;
-    outline: none;
-    cursor: pointer;
-    font-size: 0.78rem;
+    background: #f1f5f9;
+    color: #260b7b;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-}
-
-.custom-select option {
-    background: #ffffff;
-    color: #1e293b;
 }
 
 /* TARJETA INFORMATIVA */
