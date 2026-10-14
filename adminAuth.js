@@ -1,5 +1,5 @@
 // Importamos auth desde el servicio central
-import { auth } from "./services/FirebaseService.js";
+import { auth } from "./js/services/FirebaseService.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 document.getElementById("btnLogin").addEventListener("click", () => {

@@ -1,5 +1,5 @@
 // Importamos la conexión desde el servicio central
-import { db, auth } from "./services/FirebaseService.js";
+import { db, auth } from "./js/services/FirebaseService.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { collection, doc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
