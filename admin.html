@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso CMS - Tour TECMM</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+        .login-card h2 {
+            color: #1B396A;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 10px;
+            background-color: #1B396A;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            background-color: #12284c;
+        }
+        .error-msj {
+            color: #d9534f;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Acceso CMS TECMM</h2>
+        <div class="form-group">
+            <label for="txtEmail">Correo Electrónico:</label>
+            <input type="email" id="txtEmail" placeholder="admin@tecmm.mx" required>
+        </div>
+        <div class="form-group">
+            <label for="txtPassword">Contraseña:</label>
+            <input type="password" id="txtPassword" placeholder="••••••••" required>
+        </div>
+        <button id="btnLogin" class="btn-login">Iniciar Sesión</button>
+        <p id="msjError" class="error-msj"></p>
+    </div>
+
+    <script type="module" src="adminAuth.js"></script>
+</body>
+</html>

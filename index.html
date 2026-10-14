@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tour Virtual TECMM Zapopan</title>
     
-    <!-- Librería Pannellum JS y CSS para el visor 360/Panorámico -->
+    <!-- Librería Pannellum JS y CSS para el visor 360 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
 
@@ -20,15 +20,12 @@
         <p id="tvLugarActual">Cargando ubicación...</p>
     </header>
 
-    <!-- Menú de navegación horizontal -->
-    <nav class="menu-container">
-        <button class="btn-nav" onclick="cargarLugar(1)">Entrada Principal</button>
-<button class="btn-nav" onclick="cargarLugar(4)">Ciencias Básicas</button>
-<button class="btn-nav" onclick="cargarLugar(7)">Ing. Industrial</button>
-<button class="btn-nav" onclick="cargarLugar(9)">Sistemas</button>
+    <!-- Menú de navegación dinámico cargado desde Firestore -->
+    <nav id="menuNavegacion" class="menu-container">
+        <!-- Los botones de los edificios se generarán dinámicamente aquí -->
     </nav>
 
-    <!-- Contenedor del Visor -->
+    <!-- Contenedor del Visor 360 -->
     <main class="viewer-container">
         <div id="panorama"></div>
     </main>
@@ -39,6 +36,7 @@
         <p id="tvDescripcion">Selecciona un punto en la barra superior o usa las flechas en la vista para avanzar.</p>
     </section>
 
-    <script src="app.js"></script>
+    <!-- Script principal con soporte para Firebase Módulos -->
+    <script type="module" src="app.js"></script>
 </body>
-</html>>
+</html>
