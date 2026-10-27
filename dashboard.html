@@ -7,63 +7,96 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
-        body { background-color: #f8fafc; color: #1e293b; padding: 20px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; background-color: #260b7b; color: white; padding: 18px 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(38, 11, 123, 0.2); }
-        .admin-header h2 { font-size: 1.3rem; font-weight: 700; }
-        .btn-logout { background-color: #f43f5e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
-        .btn-logout:hover { background-color: #e11d48; transform: translateY(-1px); }
-        .panel-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
-        .panel-card h3 { color: #260b7b; margin-bottom: 20px; font-size: 1.1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        
+        /* aqui agregamos la imagen de fondo de la escuela y hacemos que se quede fija */
+        body { 
+            background-image: url('assets/imagenes/fondo.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed; 
+            color: #1e293b; 
+            padding: 20px; 
+        }
+
+        /* capa oscura encima de todo el fondo para que el texto de las tarjetas se lea bien */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* encabezado semi transparente con efecto de vidrio */
+       .admin-header { display: flex; justify-content: space-between; align-items: center; background-color: rgba(38, 11, 123, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: white; padding: 15px 30px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .header-title-container { display: flex; align-items: center; gap: 20px; }
+        .header-logo { height: 45px; object-fit: contain; }
+        .admin-header h2 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 1.3rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
+        
+        .btn-logout { background-color: #f43f5e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-logout:hover { background-color: #e11d48; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+        
+        /* tarjetas con fondo de vidrio (glassmorphism) */
+       .panel-card { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 25px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.4); }
+        .panel-card h3 { color: #1e293b; margin-bottom: 20px; font-size: 1.2rem; border-bottom: 2px solid rgba(0, 0, 0, 0.1); padding-bottom: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
+        
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; color: #475569; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background-color: #f8fafc; color: #1e293b; font-size: 0.9rem; outline: none; transition: border 0.2s ease; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #260b7b; background-color: #ffffff; }
+        .form-group label { font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; color: #1e293b; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
+       .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 8px; background-color: rgba(255, 255, 255, 0.4); color: #1e293b; font-size: 0.9rem; outline: none; transition: border 0.2s ease, background-color 0.2s ease; }
+       .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #260b7b; background-color: rgba(255, 255, 255, 0.8); box-shadow: 0 0 0 3px rgba(38, 11, 123, 0.1); }
         .form-group input:disabled { background-color: #e2e8f0; cursor: not-allowed; color: #64748b; }
         .full-width { grid-column: span 2; }
         
-        /* Botones principales */
-        .btn-submit { background-color: #260b7b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background 0.2s ease; }
-        .btn-submit:hover { background-color: #1b075c; }
-        .btn-cancelar { background-color: #64748b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; margin-left: 10px; transition: background 0.2s ease; }
+        /* botones principales con un poco de sombra */
+        .btn-submit { background-color: #260b7b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-submit:hover { background-color: #1b075c; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .btn-cancelar { background-color: #64748b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; margin-left: 10px; transition: all 0.2s ease; }
         .btn-cancelar:hover { background-color: #475569; }
         .btn-hotspot { background-color: #f59e0b; color: white; }
         .btn-hotspot:hover { background-color: #d97706; }
         
-        /* Tabla y Botones de acción */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 0.9rem; }
-        th { background-color: #f1f5f9; color: #475569; font-weight: 600; }
+        /* tabla y botones de accion */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(255, 255, 255, 0.5); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid rgba(226, 232, 240, 0.7); text-align: left; font-size: 0.9rem; }
+        th { background-color: rgba(241, 245, 249, 0.9); color: #475569; font-weight: 700; }
         
-        .btn-eliminar { background-color: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-left: 5px; }
-        .btn-eliminar:hover { background-color: #dc2626; }
-        .btn-editar { background-color: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; }
-        .btn-editar:hover { background-color: #2563eb; }
-        .btn-gestionar { background-color: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-left: 5px; }
-        .btn-gestionar:hover { background-color: #d97706; }
-        .badge-hotspots { background-color: #10b981; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+        .btn-eliminar { background-color: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-left: 5px; transition: all 0.2s ease; }
+        .btn-eliminar:hover { background-color: #dc2626; transform: translateY(-1px); }
+        .btn-editar { background-color: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: all 0.2s ease; }
+        .btn-editar:hover { background-color: #2563eb; transform: translateY(-1px); }
+        .btn-gestionar { background-color: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.8rem; margin-left: 5px; transition: all 0.2s ease; }
+        .btn-gestionar:hover { background-color: #d97706; transform: translateY(-1px); }
+        .badge-hotspots { background-color: #10b981; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        /* Estilos de la Ventana Modal para gestionar flechas */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 550px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-        .modal-header h3 { color: #260b7b; font-size: 1.2rem; }
-        .btn-cerrar { background: transparent; border: none; font-size: 1.8rem; cursor: pointer; color: #64748b; line-height: 1; }
+        /* estilos de las ventanas modales con vidrio */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-content { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); padding: 25px; border-radius: 16px; width: 90%; max-width: 550px; max-height: 80vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid rgba(255, 255, 255, 0.8); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid rgba(241, 245, 249, 0.8); padding-bottom: 10px; }
+        .modal-header h3 { color: #260b7b; font-size: 1.3rem; font-weight: 700; }
+        .btn-cerrar { background: transparent; border: none; font-size: 1.8rem; cursor: pointer; color: #64748b; line-height: 1; transition: color 0.2s ease; }
         .btn-cerrar:hover { color: #ef4444; }
-        .hotspot-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; }
+        .hotspot-item { display: flex; justify-content: space-between; align-items: center; background: rgba(248, 250, 252, 0.7); padding: 12px 15px; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 8px; margin-bottom: 10px; transition: background 0.2s ease; }
+        .hotspot-item:hover { background: rgba(241, 245, 249, 0.9); }
         .hotspot-info { display: flex; flex-direction: column; gap: 5px; }
         .hotspot-info strong { color: #1e293b; font-size: 0.95rem; }
-        .hotspot-info span { font-size: 0.8rem; color: #64748b; }
+        .hotspot-info span { font-size: 0.8rem; color: #475569; }
     </style>
 </head>
 <body>
 
     <header class="admin-header">
-        <h2>Panel de Administración (CMS) - Tour TECMM</h2>
-        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+        <div class="header-title-container">
+            <!-- aqui agregamos el logo de tecmm para que se vea igual que al usuario -->
+            <img src="assets/imagenes/tecmm.png" alt="Logo TECMM" class="header-logo">
+            <h2>Panel de Administración (CMS) - Tour TECMM</h2>
+        </div>
+        <div>
+            <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+        </div>
     </header>
 
-    <!-- FORMULARIO 1: REGISTRO / EDICIÓN -->
+    <!-- formulario 1: para registrar y editar las areas del tour -->
     <section class="panel-card">
         <h3 id="tituloFormularioNodo">1. Registrar Nueva Área / Nodo 360°</h3>
         <form id="formNodo">
@@ -103,7 +136,7 @@
         </form>
     </section>
 
-    <!-- FORMULARIO 2: REGISTRO DE HOTSPOTS -->
+    <!-- formulario 2: para crear las flechitas que conectan los lugares -->
     <section class="panel-card">
         <h3>2. Agregar Flecha de Navegación (Hotspot)</h3>
         <form id="formHotspot">
@@ -138,7 +171,14 @@
         </form>
     </section>
 
-    <!-- TABLA DE CONTROL -->
+    <!-- seccion 3: acceso al entrenamiento de la inteligencia artificial -->
+    <section class="panel-card">
+        <h3>3. Inteligencia Artificial (Chatbot y Voz)</h3>
+        <p style="margin-bottom: 15px; color: #334155; font-size: 0.95rem;">Entrena al asistente virtual asignando palabras clave de búsqueda y guiones de voz a cada área registrada en tu campus.</p>
+        <button id="btnAbrirPanelBot" class="btn-submit" style="background-color: #10b981; margin-top: 0;">Abrir Panel de Entrenamiento</button>
+    </section>
+
+    <!-- tabla donde salen todos los lugares que ya subimos a firebase -->
     <section class="panel-card">
         <h3>Áreas Registradas en el Campus</h3>
         <table>
@@ -158,7 +198,7 @@
         </table>
     </section>
 
-    <!-- MODAL PARA GESTIONAR HOTSPOTS (Oculto por defecto) -->
+    <!-- ventana modal para ver y borrar las flechitas de un lugar -->
     <div id="modalHotspots" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -166,7 +206,21 @@
                 <button class="btn-cerrar" onclick="cerrarModalHotspots()">&times;</button>
             </div>
             <div id="listaHotspots">
-                <!-- Se llenará con JavaScript -->
+                <!-- esto se llena con javascript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ventana modal nueva que hicimos para entrenar los mensajes de voz y busqueda -->
+    <div id="modalChatAdmin" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 style="color: #260b7b;">Gestión de Asistente de Voz y Chatbot</h3>
+                <button class="btn-cerrar" id="btnCerrarChatAdmin">&times;</button>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-bottom: 15px;">Asigna las palabras con las que el bot encontrará este lugar y el texto que leerá en voz alta.</p>
+            <div id="listaChatbotNodos">
+                <!-- aqui va la lista de lugares para entrenar generada por js -->
             </div>
         </div>
     </div>

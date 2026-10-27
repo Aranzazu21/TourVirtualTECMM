@@ -2,26 +2,30 @@ import { db, auth } from "./js/services/FirebaseService.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { collection, doc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+// aqui importamos la funcion de nuestro nuevo archivo para el chat
+import { inicializarChatAdmin } from "./js/modules/chatAdmin.js";
+
 let lugaresRegistrados = []; 
 let modoEdicion = false; 
 
-// 1. Verificar sesión
+// 1. checar sesion
 onAuthStateChanged(auth, (user) => {
     if (!user) window.location.href = "admin.html";
     else cargarNodosEnTabla();
 });
 
-// Cerrar sesión
+// cerrar sesion
 document.getElementById("btnLogout").addEventListener("click", () => {
     signOut(auth).then(() => window.location.href = "admin.html");
 });
 
-// 2. Cargar tabla y llenar selects
+// 2. cargar tabla y llenar opciones
 function cargarNodosEnTabla() {
     const tablaBody = document.getElementById("tablaNodosBody");
     const selectOrigen = document.getElementById("selectOrigen");
     const selectDestino = document.getElementById("selectDestino");
     
+    // onSnapshot escucha los cambios en tiempo real desde firebase
     onSnapshot(collection(db, "lugares"), (snapshot) => {
         tablaBody.innerHTML = "";
         lugaresRegistrados = []; 
@@ -32,10 +36,11 @@ function cargarNodosEnTabla() {
         }
         
         if (snapshot.empty) {
-            tablaBody.innerHTML = `<tr><td colspan="6">No hay áreas registradas.</td></tr>`;
+            tablaBody.innerHTML = `<tr><td colspan="6">no hay areas registradas.</td></tr>`;
             return;
         }
 
+        // recorremos los lugares que bajamos de internet
         snapshot.forEach((docSnapshot) => {
             const lugar = docSnapshot.data();
             lugaresRegistrados.push(lugar); 
@@ -64,10 +69,13 @@ function cargarNodosEnTabla() {
             `;
             tablaBody.appendChild(fila);
         });
+
+        // ESTO ES LO NUEVO: le pasamos la lista de lugares a la ventana del chat
+        inicializarChatAdmin(lugaresRegistrados);
     });
 }
 
-// 3. Gestión de Nodos (Crear/Editar/Eliminar)
+// 3. administrar lugares (crear/editar/borrar)
 window.editarNodo = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
@@ -79,8 +87,8 @@ window.editarNodo = (id) => {
     document.getElementById("descripcionNodo").value = lugar.descripcion;
     document.getElementById("imagenNodo").value = lugar.imagen;
 
-    document.getElementById("tituloFormularioNodo").innerText = `Editando Área: ${lugar.nombre}`;
-    document.getElementById("btnSubmitNodo").innerText = "Actualizar Área";
+    document.getElementById("tituloFormularioNodo").innerText = `editando area: ${lugar.nombre}`;
+    document.getElementById("btnSubmitNodo").innerText = "actualizar area";
     document.getElementById("btnCancelarEdicion").style.display = "inline-block";
     document.getElementById("msjEstado").innerText = "";
     modoEdicion = true;
@@ -90,20 +98,21 @@ window.editarNodo = (id) => {
 window.cancelarEdicion = () => {
     document.getElementById("formNodo").reset();
     document.getElementById("idNodo").disabled = false;
-    document.getElementById("tituloFormularioNodo").innerText = "1. Registrar Nueva Área / Nodo 360°";
-    document.getElementById("btnSubmitNodo").innerText = "Guardar Área en Firestore";
+    document.getElementById("tituloFormularioNodo").innerText = "1. registrar nueva area / nodo 360°";
+    document.getElementById("btnSubmitNodo").innerText = "guardar area en firestore";
     document.getElementById("btnCancelarEdicion").style.display = "none";
     document.getElementById("msjEstado").innerText = "";
     modoEdicion = false;
 };
 
+// guardar o actualizar un lugar
 document.getElementById("formNodo").addEventListener("submit", async (e) => {
     e.preventDefault();
     const msj = document.getElementById("msjEstado");
     const id = document.getElementById("idNodo").value.trim().toLowerCase();
     
     try {
-        msj.style.color = "blue"; msj.innerText = modoEdicion ? "Actualizando..." : "Guardando...";
+        msj.style.color = "blue"; msj.innerText = modoEdicion ? "actualizando..." : "guardando...";
 
         if (modoEdicion) {
             await updateDoc(doc(db, "lugares", id), {
@@ -112,7 +121,7 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                 descripcion: document.getElementById("descripcionNodo").value.trim(),
                 imagen: document.getElementById("imagenNodo").value.trim()
             });
-            msj.style.color = "green"; msj.innerText = "¡Área actualizada con éxito!";
+            msj.style.color = "green"; msj.innerText = "area actualizada con exito!";
             setTimeout(cancelarEdicion, 1500);
         } else {
             await setDoc(doc(db, "lugares", id), {
@@ -123,19 +132,20 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                 imagen: document.getElementById("imagenNodo").value.trim(),
                 hotSpots: [] 
             });
-            msj.style.color = "green"; msj.innerText = "¡Área registrada!";
+            msj.style.color = "green"; msj.innerText = "area registrada!";
             document.getElementById("formNodo").reset();
         }
-    } catch (error) { msj.style.color = "red"; msj.innerText = "Error: " + error.message; }
+    } catch (error) { msj.style.color = "red"; msj.innerText = "error: " + error.message; }
 });
 
+// borrar un lugar
 window.eliminarNodo = async (id) => {
-    if (confirm(`¿Estás seguro de eliminar el área "${id}"? Se borrará el registro y sus hotspots.`)) {
+    if (confirm(`seguro que quieres eliminar el area "${id}"? se borrara el registro y sus flechas.`)) {
         await deleteDoc(doc(db, "lugares", id));
     }
 };
 
-// 4. Crear Hotspots
+// 4. crear flechas (hotspots)
 const formHotspot = document.getElementById("formHotspot");
 if (formHotspot) {
     formHotspot.addEventListener("submit", async (e) => {
@@ -146,10 +156,10 @@ if (formHotspot) {
         const pitch = parseFloat(document.getElementById("pitchHotspot").value);
         const yaw = parseFloat(document.getElementById("yawHotspot").value);
 
-        if (origenId === destinoId) return alert("Origen y destino no pueden ser iguales.");
+        if (origenId === destinoId) return alert("origen y destino no pueden ser iguales.");
 
         try {
-            msj.style.color = "blue"; msj.innerText = "Vinculando...";
+            msj.style.color = "blue"; msj.innerText = "vinculando...";
             await updateDoc(doc(db, "lugares", origenId), {
                 hotSpots: arrayUnion({ 
                     destinoId, 
@@ -158,23 +168,23 @@ if (formHotspot) {
                     texto: document.getElementById("textoHotspot").value.trim() 
                 })
             });
-            msj.style.color = "green"; msj.innerText = "¡Hotspot creado!";
+            msj.style.color = "green"; msj.innerText = "flecha creada!";
             formHotspot.reset();
-        } catch (error) { msj.style.color = "red"; msj.innerText = "Error: " + error.message; }
+        } catch (error) { msj.style.color = "red"; msj.innerText = "error: " + error.message; }
     });
 }
 
-// 5. GESTIÓN INDIVIDUAL DE HOTSPOTS (LA VENTANA MODAL)
+// 5. ver y borrar flechas (la ventana modal de hotspots)
 window.abrirModalHotspots = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
     
-    document.getElementById("modalTitulo").innerText = `Flechas en: ${lugar.nombre}`;
+    document.getElementById("modalTitulo").innerText = `flechas en: ${lugar.nombre}`;
     const lista = document.getElementById("listaHotspots");
     lista.innerHTML = "";
 
     if (!lugar.hotSpots || lugar.hotSpots.length === 0) {
-        lista.innerHTML = "<p style='color: #64748b; text-align: center; padding: 20px;'>No hay flechas registradas en esta área.</p>";
+        lista.innerHTML = "<p style='color: #64748b; text-align: center; padding: 20px;'>no hay flechas registradas en esta area.</p>";
     } else {
         lugar.hotSpots.forEach((hs, index) => {
             const item = document.createElement("div");
@@ -182,7 +192,7 @@ window.abrirModalHotspots = (id) => {
             item.innerHTML = `
                 <div class="hotspot-info">
                     <strong>Hacia: ${hs.destinoId}</strong>
-                    <span>Texto: "${hs.texto || hs.text || 'Sin texto'}" | Pitch: ${hs.pitch}, Yaw: ${hs.yaw}</span>
+                    <span>Texto: "${hs.texto || hs.text || 'sin texto'}" | Pitch: ${hs.pitch}, Yaw: ${hs.yaw}</span>
                 </div>
                 <button class="btn-eliminar" onclick="eliminarHotspotDirecto('${lugar.id}', ${index})">Borrar</button>
             `;
@@ -198,26 +208,26 @@ window.cerrarModalHotspots = () => {
 };
 
 window.eliminarHotspotDirecto = async (nodoId, hotspotIndex) => {
-    if (!confirm("¿Seguro que quieres borrar esta flecha?")) return;
+    if (!confirm("seguro que quieres borrar esta flecha?")) return;
     
     const lugar = lugaresRegistrados.find(l => l.id === nodoId);
     if (!lugar) return;
 
-    // Clonamos el arreglo de flechas y borramos la que seleccionaste
+    // copiamos las flechas y borramos la que seleccionamos
     const nuevosHotspots = [...lugar.hotSpots];
     nuevosHotspots.splice(hotspotIndex, 1);
 
     try {
-        // Actualizamos la base de datos con el arreglo limpio
+        // subimos la lista ya limpia a firebase
         await updateDoc(doc(db, "lugares", nodoId), {
             hotSpots: nuevosHotspots
         });
         
-        // Actualizamos la memoria local y recargamos la ventana modal al instante
+        // actualizamos la ventana al instante
         lugar.hotSpots = nuevosHotspots;
         window.abrirModalHotspots(nodoId);
         
     } catch (error) {
-        alert("Error al borrar la flecha: " + error.message);
+        alert("error al borrar la flecha: " + error.message);
     }
 };
