@@ -10,19 +10,17 @@
     <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <!-- Agrega esta línea para el logo -->
+    <!-- Logo -->
     <img src="assets/imagenes/tecmm.png" alt="Logo TECMM" id="logoTecmm">
 
     <!-- Encabezado Compacto Minimalista -->
     <header class="top-bar compact">
         <div class="brand">
-            <!-- Aquí se muestra únicamente el nombre del lugar actual -->
             <span id="tvLugarActual" class="badge-lugar">Cargando...</span>
         </div>
 
         <div class="nav-dropdown-container">
             <button id="btnToggleMenu" class="btn-explorar">📍 Explorar Campus ▼</button>
-            <!-- Pestaña desplegable oculta por defecto -->
             <div id="menuNavegacion" class="dropdown-content">
                 <!-- Las ubicaciones se inyectarán aquí automáticamente -->
             </div>
@@ -38,28 +36,27 @@
         <p id="tvDescripcion">Por favor espera mientras se inicializa el visor 360°.</p>
     </div>
 
-    <!-- Interfaz del Chatbot (Inicia CERRADO con la clase 'minimizado') -->
+    <!-- Interfaz del Chatbot -->
     <div id="chatWidget" class="chat-widget minimizado">
         <div class="chat-header">
+            <!-- Botón de voz (útil por si están en celular y no tienen barra espaciadora) -->
+            <button id="btnLeerOpciones" style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #1B396A; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; font-weight: bold;" title="Presiona la barra espaciadora para hablar">
+                🔊 <span>Voz / Opciones</span>
+            </button>
             <span>Asistente Virtual TECMM</span>
             <button id="btnMinimizarChat" class="btn-chat-toggle" title="Minimizar">✕</button>
         </div>
         <div id="chatMessages" class="chat-messages">
-            <div class="chat-message bot">¡Hola! ¿Qué edificio o área del campus deseas visitar?</div>
+            <div class="chat-message bot">¡Hola! ¿Qué edificio o área del campus deseas visitar? Puedes presionar la Barra Espaciadora para hablarme.</div>
         </div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="Ej. Llévame a Sistemas..." />
             <button id="btnSendChat">Enviar</button>
         </div>
     </div>
-
-    <!-- Botón Flotante para reabrir el Chatbot (VISIBLE POR DEFECTO) -->
-    <button id="btnAbrirChat" class="chat-floating-btn" title="Abrir Asistente">
-        <span>💬</span> Asistente Virtual
-    </button>
-
+   
     <!-- Botón Flotante para reabrir el Chatbot -->
-    <button id="btnAbrirChat" class="chat-floating-btn" style="display: none;" title="Abrir Asistente">
+    <button id="btnAbrirChat" class="chat-floating-btn" title="Abrir Asistente">
         <span>💬</span> Asistente Virtual
     </button>
 
