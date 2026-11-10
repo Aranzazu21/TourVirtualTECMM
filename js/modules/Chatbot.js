@@ -4,12 +4,13 @@ export class Chatbot {
     constructor(tourViewer, uiController, lugares) {
         this.tourViewer = tourViewer;
         this.uiController = uiController;
-        this.lugares = lugares; 
+        this.lugares = lugares || []; 
         this.mensajesContenedor = document.getElementById("chatMessages");
         this.inputMensaje = document.getElementById("chatInput");
         this.btnEnviar = document.getElementById("btnSendChat");
 
         this.asistenteVoz = new VoiceAssistant();
+        this.reconocimientoVoz = null;
 
         this.arbolOpciones = {
             inicio: [
@@ -88,85 +89,127 @@ export class Chatbot {
             });
         }
 
-        // Conectar el botón de lectura de opciones visual
         if (btnLeer) {
             btnLeer.addEventListener("click", () => this.leerOpcionesEnVoz());
         }
 
-        // Iniciar configuración del micrófono
-        this.configurarReconocimientoVoz();
+        this.setupVoz();
 
         setTimeout(() => {
             this.mostrarOpciones("inicio");
         }, 600);
     }
 
-    // --- FUNCIONES DE ACCESIBILIDAD ---
-    leerOpcionesEnVoz() {
-        const opcionesTexto = "Bienvenido al Asistente Virtual. Las opciones disponibles son: Conocer Instalaciones 360, Oferta Académica, Admisión y Trámites, y Servicios del Campus. Puedes presionar la barra espaciadora en cualquier momento para hablarme.";
-        const locucion = new SpeechSynthesisUtterance(opcionesTexto);
-        locucion.lang = 'es-MX'; 
-        locucion.rate = 0.9;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(locucion);
-    }
+    setupVoz() {
+        const SpeechRec = window.webkitSpeechRecognition || window.SpeechRecognition;
 
-    configurarReconocimientoVoz() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-        if (SpeechRecognition) {
-            const reconocimiento = new SpeechRecognition();
-            reconocimiento.lang = 'es-MX';
-            reconocimiento.continuous = false;
-            reconocimiento.interimResults = false;
-
-            const activarMic = () => {
-                const aviso = new SpeechSynthesisUtterance("Te escucho, ¿a dónde quieres ir?");
-                aviso.lang = 'es-MX';
-                aviso.onend = () => reconocimiento.start();
-                
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(aviso);
-            };
-
-            reconocimiento.onresult = (evento) => {
-                const comandoVoz = evento.results[0][0].transcript;
-                if (this.inputMensaje && this.btnEnviar) {
-                    this.inputMensaje.value = comandoVoz;
-                    this.btnEnviar.click();
-                }
-            };
-
-            document.addEventListener('keydown', (e) => {
-                if (e.code === 'Space' && document.activeElement.id !== 'chatInput') {
-                    e.preventDefault();
-                    activarMic();
-                }
-            });
-        } else {
-            console.warn("Tu navegador no soporta reconocimiento de voz.");
+        if (!SpeechRec) {
+            console.warn("Reconocimiento de voz no disponible en este navegador.");
+            const micBtn = document.getElementById('btn-mic');
+            if (micBtn) micBtn.style.display = 'none';
+            return;
         }
+
+        this.reconocimientoVoz = new SpeechRec();
+        this.reconocimientoVoz.continuous = false;
+        this.reconocimientoVoz.interimResults = true;
+        this.reconocimientoVoz.lang = 'es-MX';
+
+        const btnMic = document.getElementById('btn-mic');
+        const etiquetaBtn = document.getElementById('t-btnMic');
+
+        this.reconocimientoVoz.onstart = () => {
+            if (etiquetaBtn) etiquetaBtn.innerText = "🔴 Escuchando...";
+            if (this.inputMensaje) this.inputMensaje.placeholder = "Escuchando... habla ahora";
+        };
+
+        this.reconocimientoVoz.onresult = (event) => {
+            let textoTemporal = '';
+            let textoDefinitivo = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    textoDefinitivo += event.results[i][0].transcript;
+                } else {
+                    textoTemporal += event.results[i][0].transcript;
+                }
+            }
+
+            const textoEnPantalla = textoDefinitivo || textoTemporal;
+
+            if (this.inputMensaje) {
+                this.inputMensaje.value = textoEnPantalla;
+            }
+
+            if (textoDefinitivo.trim() !== '') {
+                if (etiquetaBtn) etiquetaBtn.innerText = "🎙️ Hablar";
+                this.procesarMensaje(textoDefinitivo.trim());
+            }
+        };
+
+        this.reconocimientoVoz.onerror = (e) => {
+            console.warn("Error en captura de voz:", e.error);
+            if (etiquetaBtn) etiquetaBtn.innerText = "🎙️ Hablar";
+            if (this.inputMensaje) this.inputMensaje.placeholder = "Ej. Llévame a Sistemas...";
+        };
+
+        this.reconocimientoVoz.onend = () => {
+            if (etiquetaBtn) etiquetaBtn.innerText = "🎙️ Hablar";
+            if (this.inputMensaje && !this.inputMensaje.value) {
+                this.inputMensaje.placeholder = "Ej. Llévame a Sistemas...";
+            }
+        };
+
+        const encenderMicrofono = () => {
+            this.asistenteVoz.detener();
+            try {
+                this.reconocimientoVoz.start();
+            } catch (err) {
+                try {
+                    this.reconocimientoVoz.stop();
+                    setTimeout(() => this.reconocimientoVoz.start(), 150);
+                } catch(e) {}
+            }
+        };
+
+        if (btnMic) {
+            btnMic.onclick = (e) => {
+                e.preventDefault();
+                encenderMicrofono();
+            };
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && document.activeElement.id !== 'chatInput') {
+                e.preventDefault();
+                encenderMicrofono();
+            }
+        });
     }
-    // ----------------------------------
+
+    leerOpcionesEnVoz() {
+        const opcionesTexto = "Bienvenido al Asistente Virtual. Las opciones disponibles son: Conocer Instalaciones 360, Oferta Académica, Admisión y Trámites, y Servicios del Campus.";
+        this.asistenteVoz.hablar(opcionesTexto);
+    }
 
     normalizarTexto(texto) {
+        if (!texto || typeof texto !== "string") return "";
         return texto
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "") 
-            .replace(/[^a-z0-9\s]/g, "");    
+            .replace(/[^a-z0-9\s]/g, "")
+            .trim();    
     }
 
     procesarMensaje(textoPersonalizado = null) {
         const textoEntrada = textoPersonalizado || this.inputMensaje.value;
         const textoLimpio = this.normalizarTexto(textoEntrada);
 
-        if (textoLimpio.trim() === "") return;
+        if (textoLimpio === "") return;
 
-        if (!textoPersonalizado) {
-            this.agregarMensaje(this.inputMensaje.value, "user");
-            this.inputMensaje.value = "";
-        }
+        this.agregarMensaje(textoEntrada, "user");
+        this.inputMensaje.value = "";
 
         setTimeout(() => {
             const resultado = this.buscarRespuesta(textoLimpio);
@@ -181,28 +224,85 @@ export class Chatbot {
             if (resultado.esFallback) {
                 this.mostrarOpciones("inicio");
             }
-        }, 400);
+        }, 300);
     }
 
     buscarRespuesta(textoLimpio) {
-        if (this.lugares && this.lugares.length > 0) {
+        // 1. Verificación contra lugares (Firestore / dinámicos)
+        if (this.lugares && Array.isArray(this.lugares) && this.lugares.length > 0) {
             for (const lugar of this.lugares) {
-                if (lugar.keywords && Array.isArray(lugar.keywords)) {
-                    const coincidencia = lugar.keywords.some(clave => 
-                        textoLimpio.includes(this.normalizarTexto(clave))
-                    );
+                let listaClaves = [];
 
-                    if (coincidencia) {
-                        return {
-                            respuesta: lugar.mensajeVoz || `te llevo a: ${lugar.nombre}...`,
-                            targetId: lugar.id,
-                            esFallback: false
-                        };
-                    }
+                if (Array.isArray(lugar.keywords)) {
+                    listaClaves = [...lugar.keywords];
+                } else if (typeof lugar.keywords === 'string') {
+                    listaClaves = lugar.keywords.split(',').map(k => k.trim());
+                }
+
+                if (lugar.nombre) listaClaves.push(lugar.nombre);
+                if (lugar.id) listaClaves.push(lugar.id);
+
+                const coincidencia = listaClaves.some(clave => {
+                    const claveLimpia = this.normalizarTexto(clave);
+                    return claveLimpia !== "" && textoLimpio.includes(claveLimpia);
+                });
+
+                if (coincidencia) {
+                    return {
+                        respuesta: lugar.mensajeVoz || `Te llevo a: ${lugar.nombre}...`,
+                        targetId: lugar.id,
+                        esFallback: false
+                    };
                 }
             }
         }
 
+        // 2. Respaldo local de emergencia con los nodos del campus
+        const respaldoLugares = [
+            {
+                id: "electromecanica",
+                nombre: "Edificio Electromecánica",
+                claves: ["electromecanica", "electro", "mecanica", "edificio e"],
+                mensajeVoz: "Te llevo al Edificio de Electromecánica."
+            },
+            {
+                id: "caminoe1",
+                nombre: "Camino Electromecánica",
+                claves: ["camino electromecanica", "camino electro"],
+                mensajeVoz: "Te llevo al camino hacia Electromecánica."
+            },
+            {
+                id: "caminoe2",
+                nombre: "Andador 2 (Centro)",
+                claves: ["andador", "andador 2", "centro", "andador central"],
+                mensajeVoz: "Te llevo al Andador Central."
+            },
+            {
+                id: "entrada",
+                nombre: "Entrada Principal",
+                claves: ["entrada", "entrada principal", "afuera", "acceso"],
+                mensajeVoz: "Te llevo a la Entrada Principal."
+            },
+            {
+                id: "entrada2",
+                nombre: "Entrada (Por dentro)",
+                claves: ["entrada por dentro", "adentro", "torniquetes", "ingreso"],
+                mensajeVoz: "Te llevo al ingreso interior del campus."
+            }
+        ];
+
+        for (const nodo of respaldoLugares) {
+            const coincide = nodo.claves.some(c => textoLimpio.includes(this.normalizarTexto(c)));
+            if (coincide) {
+                return {
+                    respuesta: nodo.mensajeVoz,
+                    targetId: nodo.id,
+                    esFallback: false
+                };
+            }
+        }
+
+        // 3. Verificación de preguntas frecuentes (FAQs)
         for (const faq of this.respuestasFAQ) {
             if (faq.claves.some(clave => textoLimpio.includes(this.normalizarTexto(clave)))) {
                 return {
@@ -213,8 +313,9 @@ export class Chatbot {
             }
         }
 
+        // 4. Fallback si no hubo coincidencia
         return {
-            respuesta: "no encontre una respuesta para eso. elige una opcion de aqui abajo o llama a control escolar.",
+            respuesta: "No encontré una respuesta para eso. Elige una opción de aquí abajo o consulta en control escolar.",
             targetId: null,
             esFallback: true
         };
@@ -240,7 +341,7 @@ export class Chatbot {
                         this.agregarMensaje(op.info, "bot");
                         this.asistenteVoz.hablar(op.info); 
                     } else if (op.targetId) {
-                        this.asistenteVoz.hablar("te dirijo al area que seleccionaste.");
+                        this.asistenteVoz.hablar("Te dirijo al área seleccionada.");
                     }
 
                     if (op.targetId && this.tourViewer) {

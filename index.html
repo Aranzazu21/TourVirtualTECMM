@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <!-- Logo -->
+    <!-- Logo Institucional -->
     <img src="assets/imagenes/tecmm.png" alt="Logo TECMM" id="logoTecmm">
 
     <!-- Encabezado Compacto Minimalista -->
@@ -22,7 +22,7 @@
         <div class="nav-dropdown-container">
             <button id="btnToggleMenu" class="btn-explorar">📍 Explorar Campus ▼</button>
             <div id="menuNavegacion" class="dropdown-content">
-                <!-- Las ubicaciones se inyectarán aquí automáticamente -->
+                <!-- Se inyectan las ubicaciones dinámicamente -->
             </div>
         </div>
     </header>
@@ -38,19 +38,26 @@
 
     <!-- Interfaz del Chatbot -->
     <div id="chatWidget" class="chat-widget minimizado">
-        <div class="chat-header">
-            <!-- Botón de voz (útil por si están en celular y no tienen barra espaciadora) -->
-            <button id="btnLeerOpciones" style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #1B396A; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; font-weight: bold;" title="Presiona la barra espaciadora para hablar">
-                🔊 <span>Voz / Opciones</span>
-            </button>
-            <span>Asistente Virtual TECMM</span>
+        <div class="chat-header" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <button id="btn-mic" type="button" style="background: none; border: none; cursor: pointer; font-size: 0.95rem; color: #1B396A; font-weight: bold; display: flex; align-items: center;" title="Presiona la barra espaciadora o haz clic para hablar">
+                    <span id="t-btnMic">🎙️ Hablar</span>
+                </button>
+                <button id="btnLeerOpciones" type="button" style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #1B396A;" title="Escuchar opciones en voz alta">
+                    🔊
+                </button>
+            </div>
+            
+            <span style="font-weight: 600; font-size: 0.95rem;">Asistente TECMM</span>
             <button id="btnMinimizarChat" class="btn-chat-toggle" title="Minimizar">✕</button>
         </div>
+
         <div id="chatMessages" class="chat-messages">
-            <div class="chat-message bot">¡Hola! ¿Qué edificio o área del campus deseas visitar? Puedes presionar la Barra Espaciadora para hablarme.</div>
+            <div class="chat-message bot">¡Hola! ¿Qué edificio o área del campus deseas visitar? Haz clic en 🎙️ Hablar o presiona la Barra Espaciadora para dictarme.</div>
         </div>
+
         <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Ej. Llévame a Sistemas..." />
+            <input type="text" id="chatInput" placeholder="Ej. Llévame a Sistemas..." autocomplete="off" />
             <button id="btnSendChat">Enviar</button>
         </div>
     </div>
