@@ -2,16 +2,19 @@ import { db, auth } from "./js/services/FirebaseService.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { collection, doc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+// aqui importamos la funcion de nuestro nuevo archivo para el chat
+import { inicializarChatAdmin } from "./js/modules/chatAdmin.js";
+
 let lugaresRegistrados = []; 
 let modoEdicion = false; 
 
-// 1. Verificar sesión
+// 1. checar sesion
 onAuthStateChanged(auth, (user) => {
     if (!user) window.location.href = "admin.html";
     else cargarNodosEnTabla();
 });
 
-// Cerrar sesión
+// cerrar sesion
 document.getElementById("btnLogout").addEventListener("click", () => {
     signOut(auth).then(() => window.location.href = "admin.html");
 });
@@ -24,6 +27,7 @@ function cargarNodosEnTabla() {
     const selectDestino = document.getElementById("selectDestino");
     const filtroCategoria = document.getElementById("filtroCategoria");
     
+    // onSnapshot escucha los cambios en tiempo real desde firebase
     onSnapshot(collection(db, "lugares"), (snapshot) => {
         lugaresRegistrados = []; 
         
@@ -117,8 +121,8 @@ window.editarNodo = (id) => {
     document.getElementById("descripcionNodo").value = lugar.descripcion;
     document.getElementById("imagenNodo").value = lugar.imagen;
 
-    document.getElementById("tituloFormularioNodo").innerText = `Editando Área: ${lugar.nombre}`;
-    document.getElementById("btnSubmitNodo").innerText = "Actualizar Área";
+    document.getElementById("tituloFormularioNodo").innerText = `editando area: ${lugar.nombre}`;
+    document.getElementById("btnSubmitNodo").innerText = "actualizar area";
     document.getElementById("btnCancelarEdicion").style.display = "inline-block";
     document.getElementById("msjEstado").innerText = "";
     modoEdicion = true;
@@ -128,21 +132,22 @@ window.editarNodo = (id) => {
 window.cancelarEdicion = () => {
     document.getElementById("formNodo").reset();
     document.getElementById("idNodo").disabled = false;
-    document.getElementById("tituloFormularioNodo").innerText = "1. Registrar Nueva Área / Nodo 360°";
-    document.getElementById("btnSubmitNodo").innerText = "Guardar Área en Firestore";
+    document.getElementById("tituloFormularioNodo").innerText = "1. registrar nueva area / nodo 360°";
+    document.getElementById("btnSubmitNodo").innerText = "guardar area en firestore";
     document.getElementById("btnCancelarEdicion").style.display = "none";
     document.getElementById("msjEstado").innerText = "";
     modoEdicion = false;
     idOriginalEdicion = "";
 };
 
+// guardar o actualizar un lugar
 document.getElementById("formNodo").addEventListener("submit", async (e) => {
     e.preventDefault();
     const msj = document.getElementById("msjEstado");
     const nuevoId = document.getElementById("idNodo").value.trim().toLowerCase();
     
     try {
-        msj.style.color = "blue"; msj.innerText = modoEdicion ? "Actualizando..." : "Guardando...";
+        msj.style.color = "blue"; msj.innerText = modoEdicion ? "actualizando..." : "guardando...";
 
         if (modoEdicion) {
             if (nuevoId !== idOriginalEdicion) {
@@ -181,10 +186,10 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                 imagen: document.getElementById("imagenNodo").value.trim(),
                 hotSpots: [] 
             });
-            msj.style.color = "green"; msj.innerText = "¡Área registrada!";
+            msj.style.color = "green"; msj.innerText = "area registrada!";
             document.getElementById("formNodo").reset();
         }
-    } catch (error) { msj.style.color = "red"; msj.innerText = "Error: " + error.message; }
+    } catch (error) { msj.style.color = "red"; msj.innerText = "error: " + error.message; }
 });
 
 // 4. Crear Hotspots
@@ -198,10 +203,10 @@ if (formHotspot) {
         const pitch = parseFloat(document.getElementById("pitchHotspot").value);
         const yaw = parseFloat(document.getElementById("yawHotspot").value);
 
-        if (origenId === destinoId) return alert("Origen y destino no pueden ser iguales.");
+        if (origenId === destinoId) return alert("origen y destino no pueden ser iguales.");
 
         try {
-            msj.style.color = "blue"; msj.innerText = "Vinculando...";
+            msj.style.color = "blue"; msj.innerText = "vinculando...";
             await updateDoc(doc(db, "lugares", origenId), {
                 hotSpots: arrayUnion({ 
                     destinoId, 
@@ -210,9 +215,9 @@ if (formHotspot) {
                     texto: document.getElementById("textoHotspot").value.trim() 
                 })
             });
-            msj.style.color = "green"; msj.innerText = "¡Hotspot creado!";
+            msj.style.color = "green"; msj.innerText = "flecha creada!";
             formHotspot.reset();
-        } catch (error) { msj.style.color = "red"; msj.innerText = "Error: " + error.message; }
+        } catch (error) { msj.style.color = "red"; msj.innerText = "error: " + error.message; }
     });
 }
 
@@ -223,12 +228,12 @@ window.abrirModalHotspots = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
     
-    document.getElementById("modalTitulo").innerText = `Flechas en: ${lugar.nombre}`;
+    document.getElementById("modalTitulo").innerText = `flechas en: ${lugar.nombre}`;
     const lista = document.getElementById("listaHotspots");
     lista.innerHTML = "";
 
     if (!lugar.hotSpots || lugar.hotSpots.length === 0) {
-        lista.innerHTML = "<p style='color: #64748b; text-align: center; padding: 20px;'>No hay flechas registradas en esta área.</p>";
+        lista.innerHTML = "<p style='color: #64748b; text-align: center; padding: 20px;'>no hay flechas registradas en esta area.</p>";
     } else {
         lugar.hotSpots.forEach((hs, index) => {
             const textoActual = hs.texto || hs.text || '';
@@ -259,7 +264,7 @@ window.cerrarModalHotspots = () => {
 };
 
 window.eliminarHotspotDirecto = async (nodoId, hotspotIndex) => {
-    if (!confirm("¿Seguro que quieres borrar esta flecha?")) return;
+    if (!confirm("seguro que quieres borrar esta flecha?")) return;
     
     const lugar = lugaresRegistrados.find(l => l.id === nodoId);
     if (!lugar) return;
@@ -272,7 +277,7 @@ window.eliminarHotspotDirecto = async (nodoId, hotspotIndex) => {
         lugar.hotSpots = nuevosHotspots;
         window.abrirModalHotspots(nodoId);
     } catch (error) {
-        alert("Error al borrar la flecha: " + error.message);
+        alert("error al borrar la flecha: " + error.message);
     }
 };
 

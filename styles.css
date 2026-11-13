@@ -14,6 +14,15 @@ body, html {
     color: #1e293b;
 }
 
+#logoTecmm {
+    position: absolute;
+    top: 10px;        
+    left: 60px;       
+    width: 150px;     
+    z-index: 1000;    
+    pointer-events: none; 
+}
+
 /* Visor 360° Pannellum */
 #panorama {
     width: 100vw;
