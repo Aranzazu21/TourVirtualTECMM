@@ -16,14 +16,15 @@ document.getElementById("btnLogout").addEventListener("click", () => {
     signOut(auth).then(() => window.location.href = "admin.html");
 });
 
-// 2. Cargar tabla y llenar selects
+// ==========================================
+// 2. CARGAR TABLA, LLENAR SELECTS Y FILTROS
+// ==========================================
 function cargarNodosEnTabla() {
-    const tablaBody = document.getElementById("tablaNodosBody");
     const selectOrigen = document.getElementById("selectOrigen");
     const selectDestino = document.getElementById("selectDestino");
+    const filtroCategoria = document.getElementById("filtroCategoria");
     
     onSnapshot(collection(db, "lugares"), (snapshot) => {
-        tablaBody.innerHTML = "";
         lugaresRegistrados = []; 
         
         if(selectOrigen && selectDestino) {
@@ -31,11 +32,6 @@ function cargarNodosEnTabla() {
             selectDestino.innerHTML = '<option value="">-- Selecciona Destino --</option>';
         }
         
-        if (snapshot.empty) {
-            tablaBody.innerHTML = `<tr><td colspan="6">No hay áreas registradas.</td></tr>`;
-            return;
-        }
-
         snapshot.forEach((docSnapshot) => {
             const lugar = docSnapshot.data();
             lugaresRegistrados.push(lugar); 
@@ -46,34 +42,76 @@ function cargarNodosEnTabla() {
                 const op2 = document.createElement("option");
                 op2.value = lugar.id; op2.innerText = lugar.nombre; selectDestino.appendChild(op2);
             }
-
-            const numHotspots = lugar.hotSpots ? lugar.hotSpots.length : 0;
-            const fila = document.createElement("tr");
-
-            fila.innerHTML = `
-                <td><b>${lugar.id}</b></td>
-                <td>${lugar.nombre}</td>
-                <td>${lugar.categoria}</td>
-                <td><code>${lugar.imagen}</code></td>
-                <td><span class="badge-hotspots">${numHotspots}</span></td>
-                <td>
-                    <button class="btn-editar" onclick="editarNodo('${lugar.id}')">Editar</button>
-                    <button class="btn-gestionar" onclick="abrirModalHotspots('${lugar.id}')">Flechas</button>
-                    <button class="btn-eliminar" onclick="eliminarNodo('${lugar.id}')">Eliminar</button>
-                </td>
-            `;
-            tablaBody.appendChild(fila);
         });
+
+        // Una vez descargados los datos, dibujamos la tabla (aplicando el filtro actual)
+        dibujarTablaAreas();
+        actualizarMetricas(lugaresRegistrados);
+    });
+
+    // Escuchamos cuando el usuario cambia el filtro para volver a dibujar
+    if(filtroCategoria) {
+        filtroCategoria.addEventListener("change", dibujarTablaAreas);
+    }
+}
+
+function dibujarTablaAreas() {
+    const tablaBody = document.getElementById("tablaNodosBody");
+    const filtro = document.getElementById("filtroCategoria") ? document.getElementById("filtroCategoria").value : "Todas";
+    
+    tablaBody.innerHTML = "";
+
+    if (lugaresRegistrados.length === 0) {
+        tablaBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No hay áreas registradas.</td></tr>`;
+        return;
+    }
+
+    let areasFiltradas = lugaresRegistrados;
+
+    // Si el filtro no es "Todas", filtramos el arreglo
+    if (filtro !== "Todas") {
+        areasFiltradas = lugaresRegistrados.filter(lugar => lugar.categoria === filtro);
+    }
+
+    if (areasFiltradas.length === 0) {
+        tablaBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">No hay áreas en esta categoría.</td></tr>`;
+        return;
+    }
+
+    // Dibujamos las filas filtradas
+    areasFiltradas.forEach(lugar => {
+        const numHotspots = lugar.hotSpots ? lugar.hotSpots.length : 0;
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+            <td><b>${lugar.id}</b></td>
+            <td>${lugar.nombre}</td>
+            <td>${lugar.categoria}</td>
+            <td><code>${lugar.imagen}</code></td>
+            <td><span class="badge-hotspots">${numHotspots}</span></td>
+            <td>
+                <button class="btn-editar" onclick="editarNodo('${lugar.id}')">Editar</button>
+                <button class="btn-gestionar" onclick="abrirModalHotspots('${lugar.id}')">Flechas</button>
+                <button class="btn-eliminar" onclick="eliminarNodo('${lugar.id}')">Eliminar</button>
+            </td>
+        `;
+        tablaBody.appendChild(fila);
     });
 }
 
-// 3. Gestión de Nodos (Crear/Editar/Eliminar)
+// ==========================================
+// 3. GESTIÓN DE ÁREAS (CREAR / EDITAR / ELIMINAR)
+// ==========================================
+let idOriginalEdicion = ""; // Variable para recordar el ID original antes del cambio
+
 window.editarNodo = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
 
+    idOriginalEdicion = id; // Guardamos el ID actual por si decide cambiarlo
+
     document.getElementById("idNodo").value = lugar.id;
-    document.getElementById("idNodo").disabled = true; 
+    document.getElementById("idNodo").disabled = false; // AHORA SÍ SE PUEDE EDITAR
     document.getElementById("nombreNodo").value = lugar.nombre;
     document.getElementById("categoriaNodo").value = lugar.categoria || "Accesos";
     document.getElementById("descripcionNodo").value = lugar.descripcion;
@@ -95,28 +133,48 @@ window.cancelarEdicion = () => {
     document.getElementById("btnCancelarEdicion").style.display = "none";
     document.getElementById("msjEstado").innerText = "";
     modoEdicion = false;
+    idOriginalEdicion = "";
 };
 
 document.getElementById("formNodo").addEventListener("submit", async (e) => {
     e.preventDefault();
     const msj = document.getElementById("msjEstado");
-    const id = document.getElementById("idNodo").value.trim().toLowerCase();
+    const nuevoId = document.getElementById("idNodo").value.trim().toLowerCase();
     
     try {
         msj.style.color = "blue"; msj.innerText = modoEdicion ? "Actualizando..." : "Guardando...";
 
         if (modoEdicion) {
-            await updateDoc(doc(db, "lugares", id), {
-                nombre: document.getElementById("nombreNodo").value.trim(),
-                categoria: document.getElementById("categoriaNodo").value,
-                descripcion: document.getElementById("descripcionNodo").value.trim(),
-                imagen: document.getElementById("imagenNodo").value.trim()
-            });
+            if (nuevoId !== idOriginalEdicion) {
+                // SI EL ID CAMBIÓ: Creamos un clon con el nuevo ID y borramos el viejo
+                const lugarOriginal = lugaresRegistrados.find(l => l.id === idOriginalEdicion);
+                
+                await setDoc(doc(db, "lugares", nuevoId), {
+                    id: nuevoId,
+                    nombre: document.getElementById("nombreNodo").value.trim(),
+                    categoria: document.getElementById("categoriaNodo").value,
+                    descripcion: document.getElementById("descripcionNodo").value.trim(),
+                    imagen: document.getElementById("imagenNodo").value.trim(),
+                    hotSpots: lugarOriginal.hotSpots || [] // Conservamos las flechas que ya tenía
+                });
+                
+                await deleteDoc(doc(db, "lugares", idOriginalEdicion)); // Borramos el viejo
+            } else {
+                // SI EL ID NO CAMBIÓ: Solo actualizamos los textos normales
+                await updateDoc(doc(db, "lugares", nuevoId), {
+                    nombre: document.getElementById("nombreNodo").value.trim(),
+                    categoria: document.getElementById("categoriaNodo").value,
+                    descripcion: document.getElementById("descripcionNodo").value.trim(),
+                    imagen: document.getElementById("imagenNodo").value.trim()
+                });
+            }
+
             msj.style.color = "green"; msj.innerText = "¡Área actualizada con éxito!";
             setTimeout(cancelarEdicion, 1500);
         } else {
-            await setDoc(doc(db, "lugares", id), {
-                id: id,
+            // CREAR UNA NUEVA ÁREA
+            await setDoc(doc(db, "lugares", nuevoId), {
+                id: nuevoId,
                 nombre: document.getElementById("nombreNodo").value.trim(),
                 categoria: document.getElementById("categoriaNodo").value,
                 descripcion: document.getElementById("descripcionNodo").value.trim(),
@@ -128,12 +186,6 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
         }
     } catch (error) { msj.style.color = "red"; msj.innerText = "Error: " + error.message; }
 });
-
-window.eliminarNodo = async (id) => {
-    if (confirm(`¿Estás seguro de eliminar el área "${id}"? Se borrará el registro y sus hotspots.`)) {
-        await deleteDoc(doc(db, "lugares", id));
-    }
-};
 
 // 4. Crear Hotspots
 const formHotspot = document.getElementById("formHotspot");
@@ -164,7 +216,9 @@ if (formHotspot) {
     });
 }
 
+// ==========================================
 // 5. GESTIÓN INDIVIDUAL DE HOTSPOTS (LA VENTANA MODAL)
+// ==========================================
 window.abrirModalHotspots = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
@@ -177,14 +231,21 @@ window.abrirModalHotspots = (id) => {
         lista.innerHTML = "<p style='color: #64748b; text-align: center; padding: 20px;'>No hay flechas registradas en esta área.</p>";
     } else {
         lugar.hotSpots.forEach((hs, index) => {
+            const textoActual = hs.texto || hs.text || '';
             const item = document.createElement("div");
             item.className = "hotspot-item";
+            // Le damos un ID único a cada cajita para poder transformarla después
+            item.id = `hotspot-item-${index}`; 
+            
             item.innerHTML = `
                 <div class="hotspot-info">
                     <strong>Hacia: ${hs.destinoId}</strong>
-                    <span>Texto: "${hs.texto || hs.text || 'Sin texto'}" | Pitch: ${hs.pitch}, Yaw: ${hs.yaw}</span>
+                    <span>Texto: "${textoActual || 'Sin texto'}" | Pitch: ${hs.pitch}, Yaw: ${hs.yaw}</span>
                 </div>
-                <button class="btn-eliminar" onclick="eliminarHotspotDirecto('${lugar.id}', ${index})">Borrar</button>
+                <div style="display: flex; gap: 5px;">
+                    <button class="btn-editar" onclick="editarTextoHotspot('${lugar.id}', ${index})">Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarHotspotDirecto('${lugar.id}', ${index})">Borrar</button>
+                </div>
             `;
             lista.appendChild(item);
         });
@@ -203,21 +264,83 @@ window.eliminarHotspotDirecto = async (nodoId, hotspotIndex) => {
     const lugar = lugaresRegistrados.find(l => l.id === nodoId);
     if (!lugar) return;
 
-    // Clonamos el arreglo de flechas y borramos la que seleccionaste
     const nuevosHotspots = [...lugar.hotSpots];
     nuevosHotspots.splice(hotspotIndex, 1);
 
     try {
-        // Actualizamos la base de datos con el arreglo limpio
-        await updateDoc(doc(db, "lugares", nodoId), {
-            hotSpots: nuevosHotspots
-        });
-        
-        // Actualizamos la memoria local y recargamos la ventana modal al instante
+        await updateDoc(doc(db, "lugares", nodoId), { hotSpots: nuevosHotspots });
         lugar.hotSpots = nuevosHotspots;
         window.abrirModalHotspots(nodoId);
-        
     } catch (error) {
         alert("Error al borrar la flecha: " + error.message);
+    }
+};
+
+// --- NUEVA LÓGICA DE EDICIÓN EN LÍNEA (CON DESTINO) ---
+window.editarTextoHotspot = (nodoId, hotspotIndex) => {
+    const lugar = lugaresRegistrados.find(l => l.id === nodoId);
+    if (!lugar || !lugar.hotSpots || !lugar.hotSpots[hotspotIndex]) return;
+
+    const flechaActual = lugar.hotSpots[hotspotIndex];
+    const textoOriginal = flechaActual.texto || flechaActual.text || '';
+    const destinoOriginal = flechaActual.destinoId;
+
+    const cajitaItem = document.getElementById(`hotspot-item-${hotspotIndex}`);
+    if (!cajitaItem) return;
+
+    // Generamos las opciones del select con todas las áreas registradas
+    const opcionesDestino = lugaresRegistrados.map(l => 
+        `<option value="${l.id}" ${l.id === destinoOriginal ? 'selected' : ''}>${l.nombre} (${l.id})</option>`
+    ).join('');
+
+    // Transformamos la cajita agregando el selector de destino y el texto
+    cajitaItem.innerHTML = `
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+            <strong style="color:#2563eb; margin-bottom: 5px;">Editando flecha</strong>
+            
+            <label style="font-size: 0.85em; color: #475569; margin-bottom: -5px;">Destino de la flecha:</label>
+            <select id="selectEditDestino_${hotspotIndex}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; background: white;">
+                ${opcionesDestino}
+            </select>
+
+            <label style="font-size: 0.85em; color: #475569; margin-bottom: -5px;">Texto a mostrar:</label>
+            <input type="text" id="inputEditTexto_${hotspotIndex}" value="${textoOriginal}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%;">
+            
+            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                <button class="btn-editar" style="background-color: #10b981; color: white;" onclick="guardarEdicionHotspot('${nodoId}', ${hotspotIndex})">Guardar Cambios</button>
+                <button class="btn-eliminar" onclick="abrirModalHotspots('${nodoId}')">Cancelar</button>
+            </div>
+        </div>
+    `;
+};
+
+window.guardarEdicionHotspot = async (nodoId, hotspotIndex) => {
+    const inputTexto = document.getElementById(`inputEditTexto_${hotspotIndex}`);
+    const selectDestino = document.getElementById(`selectEditDestino_${hotspotIndex}`);
+    
+    if (!inputTexto || !selectDestino) return;
+    
+    const nuevoTexto = inputTexto.value.trim();
+    const nuevoDestino = selectDestino.value;
+    
+    const lugar = lugaresRegistrados.find(l => l.id === nodoId);
+    if (!lugar) return;
+
+    // Actualizamos tanto el texto como el destino
+    const nuevosHotspots = [...lugar.hotSpots];
+    nuevosHotspots[hotspotIndex].texto = nuevoTexto;
+    nuevosHotspots[hotspotIndex].destinoId = nuevoDestino;
+    
+    if (nuevosHotspots[hotspotIndex].text) {
+        delete nuevosHotspots[hotspotIndex].text;
+    }
+
+    try {
+        await updateDoc(doc(db, "lugares", nodoId), { hotSpots: nuevosHotspots });
+        
+        lugar.hotSpots = nuevosHotspots;
+        window.abrirModalHotspots(nodoId); 
+    } catch (error) {
+        alert("Error al guardar: " + error.message);
     }
 };

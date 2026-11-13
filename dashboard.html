@@ -69,7 +69,7 @@
         <form id="formNodo">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="idNodo">ID Único (No se puede cambiar al editar):</label>
+                    <label for="idNodo">ID Único:</label>
                     <input type="text" id="idNodo" required placeholder="sin_espacios">
                 </div>
                 <div class="form-group">
@@ -82,6 +82,7 @@
                         <option value="Accesos">Accesos</option>
                         <option value="Andadores">Andadores</option>
                         <option value="Aulas">Aulas</option>
+                        <option value="Edificios">Edificios</option>
                         <option value="Laboratorios">Laboratorios</option>
                         <option value="Servicios">Servicios</option>
                     </select>
@@ -140,7 +141,22 @@
 
     <!-- TABLA DE CONTROL -->
     <section class="panel-card">
-        <h3>Áreas Registradas en el Campus</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <h3 style="color: #312e81; margin: 0;">Áreas Registradas en el Campus</h3>
+    
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <label for="filtroCategoria" style="font-weight: 600; color: #475569;">Filtrar por Categoría:</label>
+        <select id="filtroCategoria" style="padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; background: white;">
+            <option value="Todas">Todas las Categorías</option>
+            <option value="Accesos">Accesos</option>
+            <option value="Andadores">Andadores</option>
+            <option value="Edificios">Edificios</option>
+            <option value="Edificios">Aulas</option>
+            <option value="Laboratorios">Laboratorios</option>
+            <option value="Servicios">Servicios</option>
+        </select>
+    </div>
+</div>
         <table>
             <thead>
                 <tr>
@@ -166,7 +182,16 @@
                 <button class="btn-cerrar" onclick="cerrarModalHotspots()">&times;</button>
             </div>
             <div id="listaHotspots">
-                <!-- Se llenará con JavaScript -->
+                <div id="editorHotspot" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+    <h4 style="margin-bottom: 10px; color: #1e293b;">Editar Texto de la Flecha</h4>
+    <input type="text" id="inputEditarTexto" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+    <input type="hidden" id="hiddenNodoId">
+    <input type="hidden" id="hiddenHotspotIndex">
+    <div style="display: flex; gap: 10px;">
+        <button id="btnGuardarEdicion" style="background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Guardar</button>
+        <button id="btnCancelarEdicionTexto" style="background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Cancelar</button>
+    </div>
+</div>
             </div>
         </div>
     </div>
