@@ -19,11 +19,28 @@
             <span id="tvLugarActual" class="badge-lugar">Cargando...</span>
         </div>
 
-        <div class="nav-dropdown-container">
-            <button id="btnToggleMenu" class="btn-explorar">📍 Explorar Campus ▼</button>
-            <div id="menuNavegacion" class="dropdown-content">
-                <!-- Se inyectan las ubicaciones dinámicamente -->
+        <!-- Contenedor padre flex para separar el filtro y el botón Explorar -->
+        <div style="display: flex; gap: 12px; align-items: center;">
+            
+            <!-- Filtro de Categorías -->
+            <select id="filtroCampus" style="background-color: #2e1065; color: white; border: 2px solid #4c1d95; border-radius: 20px; padding: 8px 16px; font-weight: 600; cursor: pointer; outline: none; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s ease;">
+                <option value="Todas">👁️ Todas las áreas</option>
+                <option value="Accesos">🚪 Accesos</option>
+                <option value="Andadores">🚶 Andadores</option>
+                <option value="Edificios">🏢 Edificios</option>
+                <option value="Aulas">🏫 Aulas</option>
+                <option value="Laboratorios">🔬 Laboratorios</option>
+                <option value="Servicios">☕ Servicios</option>
+            </select>
+
+            <!-- Contenedor independiente solo para el botón amarillo y su menú blanco -->
+            <div class="nav-dropdown-container" style="position: relative;">
+                <button id="btnToggleMenu" class="btn-explorar">📍 Explorar Campus ▼</button>
+                <div id="menuNavegacion" class="dropdown-content">
+                    <!-- Se inyectan las ubicaciones dinámicamente -->
+                </div>
             </div>
+
         </div>
     </header>
 

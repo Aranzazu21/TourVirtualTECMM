@@ -80,34 +80,44 @@ function inicializarSistema(lugares) {
     chatbot.inicializar();
 
     // ==========================================
-    // LÓGICA DEL MENÚ DESPLEGABLE RÁPIDO
+    // LÓGICA DEL MENÚ DESPLEGABLE RÁPIDO (CON FILTRO)
     // ==========================================
     const navContenedor = document.getElementById("menuNavegacion");
     const btnToggleMenu = document.getElementById("btnToggleMenu");
+    const filtroCampus = document.getElementById("filtroCampus");
 
-    if (btnToggleMenu && navContenedor) {
-        // 1. Abrir/Cerrar el menú al presionar "Explorar Campus"
-        btnToggleMenu.addEventListener("click", (e) => {
-            e.stopPropagation(); // Evita que se cierre instantáneamente
-            navContenedor.classList.toggle("show");
-        });
-
-        // 2. Cerrar el menú si haces clic en cualquier otra parte de la pantalla
-        document.addEventListener("click", (e) => {
-            if (!e.target.closest(".nav-dropdown-container")) {
-                navContenedor.classList.remove("show");
-            }
-        });
-
-        // 3. Llenar el menú desplegable con las áreas de Firebase
-        navContenedor.innerHTML = ""; 
+    // Función para dibujar los botones del menú, aplicando el filtro si existe
+    function dibujarBotonesMenu() {
+        if (!navContenedor) return;
         
-        lugares.forEach((lugar) => {
+        navContenedor.innerHTML = ""; // Limpiamos el menú actual
+        
+        // Obtenemos la categoría elegida (si el filtro existe en el HTML, si no, mostramos "Todas")
+        const categoriaSeleccionada = filtroCampus ? filtroCampus.value : "Todas";
+
+        // Filtramos la lista de lugares 
+        let lugaresParaMostrar = lugares; 
+        if (categoriaSeleccionada !== "Todas") {
+            lugaresParaMostrar = lugares.filter(lugar => lugar.categoria === categoriaSeleccionada);
+        }
+
+        // Si la categoría está vacía, mostramos un mensaje bonito
+        if (lugaresParaMostrar.length === 0) {
+            const msj = document.createElement("div");
+            msj.style.padding = "10px";
+            msj.style.color = "white";
+            msj.style.textAlign = "center";
+            msj.innerText = "No hay áreas en esta categoría.";
+            navContenedor.appendChild(msj);
+            return;
+        }
+
+        // Dibujamos los botones de las áreas filtradas
+        lugaresParaMostrar.forEach((lugar) => {
             const btn = document.createElement("button");
             btn.className = "btn-nav";
             btn.innerText = `📍 ${lugar.nombre}`;
             
-            // 4. Al hacer clic, viajar a esa área y ocultar el menú
             btn.addEventListener("click", () => {
                 tourViewer.cargarEscenaPorId(lugar.id);
                 navContenedor.classList.remove("show"); 
@@ -115,6 +125,31 @@ function inicializarSistema(lugares) {
             
             navContenedor.appendChild(btn);
         });
+    }
+
+    if (btnToggleMenu && navContenedor) {
+        // 1. Abrir/Cerrar el menú al presionar "Explorar Campus"
+        btnToggleMenu.addEventListener("click", (e) => {
+            e.stopPropagation(); 
+            navContenedor.classList.toggle("show");
+        });
+
+        // 2. Cerrar el menú si haces clic afuera
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".nav-dropdown-container")) {
+                navContenedor.classList.remove("show");
+            }
+        });
+
+        // 3. Dibujar el menú inicialmente con todas las opciones
+        dibujarBotonesMenu();
+
+        // 4. Si el usuario cambia el filtro de categoría, re-dibujamos el menú al instante
+        if (filtroCampus) {
+            filtroCampus.addEventListener("change", () => {
+                dibujarBotonesMenu();
+            });
+        }
     }
 
     // Filtros

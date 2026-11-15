@@ -2,19 +2,19 @@ import { db, auth } from "./js/services/FirebaseService.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { collection, doc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// aqui importamos la funcion de nuestro nuevo archivo para el chat
 import { inicializarChatAdmin } from "./js/modules/chatAdmin.js";
 
 let lugaresRegistrados = []; 
 let modoEdicion = false; 
 
-// 1. checar sesion
+// ==========================================
+// 1. VERIFICAR SESIÓN
+// ==========================================
 onAuthStateChanged(auth, (user) => {
     if (!user) window.location.href = "admin.html";
     else cargarNodosEnTabla();
 });
 
-// cerrar sesion
 document.getElementById("btnLogout").addEventListener("click", () => {
     signOut(auth).then(() => window.location.href = "admin.html");
 });
@@ -23,39 +23,89 @@ document.getElementById("btnLogout").addEventListener("click", () => {
 // 2. CARGAR TABLA, LLENAR SELECTS Y FILTROS
 // ==========================================
 function cargarNodosEnTabla() {
-    const selectOrigen = document.getElementById("selectOrigen");
-    const selectDestino = document.getElementById("selectDestino");
-    const filtroCategoria = document.getElementById("filtroCategoria");
+    const filtroCategoriaTabla = document.getElementById("filtroCategoria");
     
-    // onSnapshot escucha los cambios en tiempo real desde firebase
     onSnapshot(collection(db, "lugares"), (snapshot) => {
         lugaresRegistrados = []; 
         
-        if(selectOrigen && selectDestino) {
-            selectOrigen.innerHTML = '<option value="">-- Selecciona Origen --</option>';
-            selectDestino.innerHTML = '<option value="">-- Selecciona Destino --</option>';
-        }
-        
         snapshot.forEach((docSnapshot) => {
-            const lugar = docSnapshot.data();
-            lugaresRegistrados.push(lugar); 
-            
-            if(selectOrigen && selectDestino) {
-                const op1 = document.createElement("option");
-                op1.value = lugar.id; op1.innerText = lugar.nombre; selectOrigen.appendChild(op1);
-                const op2 = document.createElement("option");
-                op2.value = lugar.id; op2.innerText = lugar.nombre; selectDestino.appendChild(op2);
-            }
+            lugaresRegistrados.push(docSnapshot.data()); 
         });
 
-        // Una vez descargados los datos, dibujamos la tabla (aplicando el filtro actual)
         dibujarTablaAreas();
-        actualizarMetricas(lugaresRegistrados);
+
+        const catOrigen = document.getElementById("filtroCategoriaOrigen") ? document.getElementById("filtroCategoriaOrigen").value : "Todas";
+        const catDestino = document.getElementById("filtroCategoriaDestino") ? document.getElementById("filtroCategoriaDestino").value : "Todas";
+        actualizarSelectoresHotspots(catOrigen, catDestino);
     });
 
-    // Escuchamos cuando el usuario cambia el filtro para volver a dibujar
-    if(filtroCategoria) {
-        filtroCategoria.addEventListener("change", dibujarTablaAreas);
+    if(filtroCategoriaTabla) {
+        filtroCategoriaTabla.addEventListener("change", dibujarTablaAreas);
+    }
+
+    const filtroCategoriaOrigen = document.getElementById("filtroCategoriaOrigen");
+    const filtroCategoriaDestino = document.getElementById("filtroCategoriaDestino");
+
+    if(filtroCategoriaOrigen && filtroCategoriaDestino) {
+        filtroCategoriaOrigen.addEventListener("change", () => {
+            actualizarSelectoresHotspots(filtroCategoriaOrigen.value, filtroCategoriaDestino.value);
+        });
+
+        filtroCategoriaDestino.addEventListener("change", () => {
+            actualizarSelectoresHotspots(filtroCategoriaOrigen.value, filtroCategoriaDestino.value);
+        });
+    }
+}
+
+// ACTUALIZA LOS SELECTORES DEL FORMULARIO SEGÚN LOS FILTROS ELEGIDOS
+function actualizarSelectoresHotspots(categoriaOrigen, categoriaDestino) {
+    const selectOrigen = document.getElementById("selectOrigen");
+    const selectDestino = document.getElementById("selectDestino");
+
+    if (!selectOrigen || !selectDestino) return;
+
+    const origenActual = selectOrigen.value;
+    const destinoActual = selectDestino.value;
+
+    selectOrigen.innerHTML = '<option value="">-- Selecciona Origen --</option>';
+    selectDestino.innerHTML = '<option value="">-- Selecciona Destino --</option>';
+
+    const catOrigenLimpia = String(categoriaOrigen).trim().toLowerCase();
+    const catDestinoLimpia = String(categoriaDestino).trim().toLowerCase();
+
+    // Filtramos para el Origen (Búsqueda exacta, Edificios y Aulas están separados)
+    let lugaresOrigen = lugaresRegistrados;
+    if (catOrigenLimpia !== "todas") {
+        lugaresOrigen = lugaresRegistrados.filter(lugar => String(lugar.categoria).trim().toLowerCase() === catOrigenLimpia);
+    }
+
+    // Filtramos para el Destino (Búsqueda exacta)
+    let lugaresDestino = lugaresRegistrados;
+    if (catDestinoLimpia !== "todas") {
+        lugaresDestino = lugaresRegistrados.filter(lugar => String(lugar.categoria).trim().toLowerCase() === catDestinoLimpia);
+    }
+
+    lugaresOrigen.forEach(lugar => {
+        const op = document.createElement("option");
+        op.value = lugar.id; 
+        op.innerText = lugar.nombre + " (" + lugar.id + ")"; 
+        selectOrigen.appendChild(op);
+    });
+
+    lugaresDestino.forEach(lugar => {
+        const op = document.createElement("option");
+        op.value = lugar.id; 
+        op.innerText = lugar.nombre + " (" + lugar.id + ")"; 
+        selectDestino.appendChild(op);
+    });
+
+    if(origenActual) {
+        const existe = Array.from(selectOrigen.options).some(opt => opt.value === origenActual);
+        if(existe) selectOrigen.value = origenActual;
+    }
+    if(destinoActual) {
+        const existe = Array.from(selectDestino.options).some(opt => opt.value === destinoActual);
+        if(existe) selectDestino.value = destinoActual;
     }
 }
 
@@ -72,9 +122,10 @@ function dibujarTablaAreas() {
 
     let areasFiltradas = lugaresRegistrados;
 
-    // Si el filtro no es "Todas", filtramos el arreglo
+    // Filtro estricto para la tabla (sin mezclar)
     if (filtro !== "Todas") {
-        areasFiltradas = lugaresRegistrados.filter(lugar => lugar.categoria === filtro);
+        const filtroLimpio = String(filtro).trim().toLowerCase();
+        areasFiltradas = lugaresRegistrados.filter(l => String(l.categoria).trim().toLowerCase() === filtroLimpio);
     }
 
     if (areasFiltradas.length === 0) {
@@ -82,7 +133,6 @@ function dibujarTablaAreas() {
         return;
     }
 
-    // Dibujamos las filas filtradas
     areasFiltradas.forEach(lugar => {
         const numHotspots = lugar.hotSpots ? lugar.hotSpots.length : 0;
         const fila = document.createElement("tr");
@@ -106,23 +156,23 @@ function dibujarTablaAreas() {
 // ==========================================
 // 3. GESTIÓN DE ÁREAS (CREAR / EDITAR / ELIMINAR)
 // ==========================================
-let idOriginalEdicion = ""; // Variable para recordar el ID original antes del cambio
+let idOriginalEdicion = ""; 
 
 window.editarNodo = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
 
-    idOriginalEdicion = id; // Guardamos el ID actual por si decide cambiarlo
+    idOriginalEdicion = id; 
 
     document.getElementById("idNodo").value = lugar.id;
-    document.getElementById("idNodo").disabled = false; // AHORA SÍ SE PUEDE EDITAR
+    document.getElementById("idNodo").disabled = false; 
     document.getElementById("nombreNodo").value = lugar.nombre;
     document.getElementById("categoriaNodo").value = lugar.categoria || "Accesos";
     document.getElementById("descripcionNodo").value = lugar.descripcion;
     document.getElementById("imagenNodo").value = lugar.imagen;
 
-    document.getElementById("tituloFormularioNodo").innerText = `editando area: ${lugar.nombre}`;
-    document.getElementById("btnSubmitNodo").innerText = "actualizar area";
+    document.getElementById("tituloFormularioNodo").innerText = `Editando Área: ${lugar.nombre}`;
+    document.getElementById("btnSubmitNodo").innerText = "Actualizar Área";
     document.getElementById("btnCancelarEdicion").style.display = "inline-block";
     document.getElementById("msjEstado").innerText = "";
     modoEdicion = true;
@@ -132,26 +182,24 @@ window.editarNodo = (id) => {
 window.cancelarEdicion = () => {
     document.getElementById("formNodo").reset();
     document.getElementById("idNodo").disabled = false;
-    document.getElementById("tituloFormularioNodo").innerText = "1. registrar nueva area / nodo 360°";
-    document.getElementById("btnSubmitNodo").innerText = "guardar area en firestore";
+    document.getElementById("tituloFormularioNodo").innerText = "1. Registrar Nueva Área / Nodo 360°";
+    document.getElementById("btnSubmitNodo").innerText = "Guardar Área en Firestore";
     document.getElementById("btnCancelarEdicion").style.display = "none";
     document.getElementById("msjEstado").innerText = "";
     modoEdicion = false;
     idOriginalEdicion = "";
 };
 
-// guardar o actualizar un lugar
 document.getElementById("formNodo").addEventListener("submit", async (e) => {
     e.preventDefault();
     const msj = document.getElementById("msjEstado");
     const nuevoId = document.getElementById("idNodo").value.trim().toLowerCase();
     
     try {
-        msj.style.color = "blue"; msj.innerText = modoEdicion ? "actualizando..." : "guardando...";
+        msj.style.color = "blue"; msj.innerText = modoEdicion ? "Actualizando..." : "Guardando...";
 
         if (modoEdicion) {
             if (nuevoId !== idOriginalEdicion) {
-                // SI EL ID CAMBIÓ: Creamos un clon con el nuevo ID y borramos el viejo
                 const lugarOriginal = lugaresRegistrados.find(l => l.id === idOriginalEdicion);
                 
                 await setDoc(doc(db, "lugares", nuevoId), {
@@ -160,12 +208,11 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                     categoria: document.getElementById("categoriaNodo").value,
                     descripcion: document.getElementById("descripcionNodo").value.trim(),
                     imagen: document.getElementById("imagenNodo").value.trim(),
-                    hotSpots: lugarOriginal.hotSpots || [] // Conservamos las flechas que ya tenía
+                    hotSpots: lugarOriginal.hotSpots || [] 
                 });
                 
-                await deleteDoc(doc(db, "lugares", idOriginalEdicion)); // Borramos el viejo
+                await deleteDoc(doc(db, "lugares", idOriginalEdicion)); 
             } else {
-                // SI EL ID NO CAMBIÓ: Solo actualizamos los textos normales
                 await updateDoc(doc(db, "lugares", nuevoId), {
                     nombre: document.getElementById("nombreNodo").value.trim(),
                     categoria: document.getElementById("categoriaNodo").value,
@@ -177,7 +224,6 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
             msj.style.color = "green"; msj.innerText = "¡Área actualizada con éxito!";
             setTimeout(cancelarEdicion, 1500);
         } else {
-            // CREAR UNA NUEVA ÁREA
             await setDoc(doc(db, "lugares", nuevoId), {
                 id: nuevoId,
                 nombre: document.getElementById("nombreNodo").value.trim(),
@@ -186,13 +232,21 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                 imagen: document.getElementById("imagenNodo").value.trim(),
                 hotSpots: [] 
             });
-            msj.style.color = "green"; msj.innerText = "area registrada!";
+            msj.style.color = "green"; msj.innerText = "¡Área registrada!";
             document.getElementById("formNodo").reset();
         }
-    } catch (error) { msj.style.color = "red"; msj.innerText = "error: " + error.message; }
+    } catch (error) { msj.style.color = "red"; msj.innerText = "Error: " + error.message; }
 });
 
-// 4. Crear Hotspots
+window.eliminarNodo = async (id) => {
+    if (confirm(`¿Estás seguro de eliminar el área "${id}"? Se borrará el registro y sus hotspots.`)) {
+        await deleteDoc(doc(db, "lugares", id));
+    }
+};
+
+// ==========================================
+// 4. CREAR HOTSPOTS
+// ==========================================
 const formHotspot = document.getElementById("formHotspot");
 if (formHotspot) {
     formHotspot.addEventListener("submit", async (e) => {
@@ -203,10 +257,10 @@ if (formHotspot) {
         const pitch = parseFloat(document.getElementById("pitchHotspot").value);
         const yaw = parseFloat(document.getElementById("yawHotspot").value);
 
-        if (origenId === destinoId) return alert("origen y destino no pueden ser iguales.");
+        if (origenId === destinoId) return alert("Origen y destino no pueden ser iguales.");
 
         try {
-            msj.style.color = "blue"; msj.innerText = "vinculando...";
+            msj.style.color = "blue"; msj.innerText = "Vinculando...";
             await updateDoc(doc(db, "lugares", origenId), {
                 hotSpots: arrayUnion({ 
                     destinoId, 
@@ -215,31 +269,30 @@ if (formHotspot) {
                     texto: document.getElementById("textoHotspot").value.trim() 
                 })
             });
-            msj.style.color = "green"; msj.innerText = "flecha creada!";
+            msj.style.color = "green"; msj.innerText = "¡Flecha creada!";
             formHotspot.reset();
-        } catch (error) { msj.style.color = "red"; msj.innerText = "error: " + error.message; }
+        } catch (error) { msj.style.color = "red"; msj.innerText = "Error: " + error.message; }
     });
 }
 
 // ==========================================
-// 5. GESTIÓN INDIVIDUAL DE HOTSPOTS (LA VENTANA MODAL)
+// 5. GESTIÓN INDIVIDUAL DE HOTSPOTS (MODAL)
 // ==========================================
 window.abrirModalHotspots = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
     
-    document.getElementById("modalTitulo").innerText = `flechas en: ${lugar.nombre}`;
+    document.getElementById("modalTitulo").innerText = `Flechas en: ${lugar.nombre}`;
     const lista = document.getElementById("listaHotspots");
     lista.innerHTML = "";
 
     if (!lugar.hotSpots || lugar.hotSpots.length === 0) {
-        lista.innerHTML = "<p style='color: #64748b; text-align: center; padding: 20px;'>no hay flechas registradas en esta area.</p>";
+        lista.innerHTML = "<p style='color: #64748b; text-align: center; padding: 20px;'>No hay flechas registradas en esta área.</p>";
     } else {
         lugar.hotSpots.forEach((hs, index) => {
             const textoActual = hs.texto || hs.text || '';
             const item = document.createElement("div");
             item.className = "hotspot-item";
-            // Le damos un ID único a cada cajita para poder transformarla después
             item.id = `hotspot-item-${index}`; 
             
             item.innerHTML = `
@@ -264,7 +317,7 @@ window.cerrarModalHotspots = () => {
 };
 
 window.eliminarHotspotDirecto = async (nodoId, hotspotIndex) => {
-    if (!confirm("seguro que quieres borrar esta flecha?")) return;
+    if (!confirm("¿Seguro que quieres borrar esta flecha?")) return;
     
     const lugar = lugaresRegistrados.find(l => l.id === nodoId);
     if (!lugar) return;
@@ -277,11 +330,10 @@ window.eliminarHotspotDirecto = async (nodoId, hotspotIndex) => {
         lugar.hotSpots = nuevosHotspots;
         window.abrirModalHotspots(nodoId);
     } catch (error) {
-        alert("error al borrar la flecha: " + error.message);
+        alert("Error al borrar la flecha: " + error.message);
     }
 };
 
-// --- NUEVA LÓGICA DE EDICIÓN EN LÍNEA (CON DESTINO) ---
 window.editarTextoHotspot = (nodoId, hotspotIndex) => {
     const lugar = lugaresRegistrados.find(l => l.id === nodoId);
     if (!lugar || !lugar.hotSpots || !lugar.hotSpots[hotspotIndex]) return;
@@ -293,12 +345,10 @@ window.editarTextoHotspot = (nodoId, hotspotIndex) => {
     const cajitaItem = document.getElementById(`hotspot-item-${hotspotIndex}`);
     if (!cajitaItem) return;
 
-    // Generamos las opciones del select con todas las áreas registradas
     const opcionesDestino = lugaresRegistrados.map(l => 
         `<option value="${l.id}" ${l.id === destinoOriginal ? 'selected' : ''}>${l.nombre} (${l.id})</option>`
     ).join('');
 
-    // Transformamos la cajita agregando el selector de destino y el texto
     cajitaItem.innerHTML = `
         <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
             <strong style="color:#2563eb; margin-bottom: 5px;">Editando flecha</strong>
@@ -331,7 +381,6 @@ window.guardarEdicionHotspot = async (nodoId, hotspotIndex) => {
     const lugar = lugaresRegistrados.find(l => l.id === nodoId);
     if (!lugar) return;
 
-    // Actualizamos tanto el texto como el destino
     const nuevosHotspots = [...lugar.hotSpots];
     nuevosHotspots[hotspotIndex].texto = nuevoTexto;
     nuevosHotspots[hotspotIndex].destinoId = nuevoDestino;

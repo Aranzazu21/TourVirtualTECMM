@@ -8,7 +8,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
         
-        /* aqui agregamos la imagen de fondo de la escuela y hacemos que se quede fija */
         body { 
             background-image: url('assets/imagenes/fondo.jpg'); 
             background-size: cover; 
@@ -18,7 +17,6 @@
             padding: 20px; 
         }
 
-        /* capa oscura encima de todo el fondo para que el texto de las tarjetas se lea bien */
         body::before {
             content: '';
             position: fixed;
@@ -27,7 +25,6 @@
             z-index: -1;
         }
 
-        /* encabezado semi transparente con efecto de vidrio */
        .admin-header { display: flex; justify-content: space-between; align-items: center; background-color: rgba(38, 11, 123, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: white; padding: 15px 30px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
         .header-title-container { display: flex; align-items: center; gap: 20px; }
         .header-logo { height: 45px; object-fit: contain; }
@@ -36,7 +33,6 @@
         .btn-logout { background-color: #f43f5e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-logout:hover { background-color: #e11d48; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
         
-        /* tarjetas con fondo de vidrio (glassmorphism) */
        .panel-card { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 25px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.4); }
         .panel-card h3 { color: #1e293b; margin-bottom: 20px; font-size: 1.2rem; border-bottom: 2px solid rgba(0, 0, 0, 0.1); padding-bottom: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
         
@@ -48,7 +44,6 @@
         .form-group input:disabled { background-color: #e2e8f0; cursor: not-allowed; color: #64748b; }
         .full-width { grid-column: span 2; }
         
-        /* botones principales con un poco de sombra */
         .btn-submit { background-color: #260b7b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-submit:hover { background-color: #1b075c; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
         .btn-cancelar { background-color: #64748b; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; margin-left: 10px; transition: all 0.2s ease; }
@@ -56,7 +51,6 @@
         .btn-hotspot { background-color: #f59e0b; color: white; }
         .btn-hotspot:hover { background-color: #d97706; }
         
-        /* tabla y botones de accion */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(255, 255, 255, 0.5); border-radius: 8px; overflow: hidden; }
         th, td { padding: 12px 15px; border-bottom: 1px solid rgba(226, 232, 240, 0.7); text-align: left; font-size: 0.9rem; }
         th { background-color: rgba(241, 245, 249, 0.9); color: #475569; font-weight: 700; }
@@ -69,7 +63,6 @@
         .btn-gestionar:hover { background-color: #d97706; transform: translateY(-1px); }
         .badge-hotspots { background-color: #10b981; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        /* estilos de las ventanas modales con vidrio */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; }
         .modal-content { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); padding: 25px; border-radius: 16px; width: 90%; max-width: 550px; max-height: 80vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid rgba(255, 255, 255, 0.8); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid rgba(241, 245, 249, 0.8); padding-bottom: 10px; }
@@ -87,7 +80,6 @@
 
     <header class="admin-header">
         <div class="header-title-container">
-            <!-- aqui agregamos el logo de tecmm para que se vea igual que al usuario -->
             <img src="assets/imagenes/tecmm.png" alt="Logo TECMM" class="header-logo">
             <h2>Panel de Administración (CMS) - Tour TECMM</h2>
         </div>
@@ -114,8 +106,8 @@
                     <select id="categoriaNodo">
                         <option value="Accesos">Accesos</option>
                         <option value="Andadores">Andadores</option>
-                        <option value="Aulas">Aulas</option>
                         <option value="Edificios">Edificios</option>
+                        <option value="Aulas">Aulas</option>
                         <option value="Laboratorios">Laboratorios</option>
                         <option value="Servicios">Servicios</option>
                     </select>
@@ -141,6 +133,35 @@
     <section class="panel-card">
         <h3>2. Agregar Flecha de Navegación (Hotspot)</h3>
         <form id="formHotspot">
+            
+            <div class="form-grid" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed rgba(255,255,255,0.5);">
+                <div class="form-group">
+                    <label for="filtroCategoriaOrigen">Filtrar Origen por Categoría:</label>
+                    <select id="filtroCategoriaOrigen">
+                        <option value="Todas">Todas las categorías</option>
+                        <option value="Accesos">Accesos</option>
+                        <option value="Andadores">Andadores</option>
+                        <option value="Edificios">Edificios</option>
+                        <option value="Aulas">Aulas</option>
+                        <option value="Laboratorios">Laboratorios</option>
+                        <option value="Servicios">Servicios</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filtroCategoriaDestino">Filtrar Destino por Categoría:</label>
+                    <select id="filtroCategoriaDestino">
+                        <option value="Todas">Todas las categorías</option>
+                        <option value="Accesos">Accesos</option>
+                        <option value="Andadores">Andadores</option>
+                        <option value="Edificios">Edificios</option>
+                        <option value="Aulas">Aulas</option>
+                        <option value="Laboratorios">Laboratorios</option>
+                        <option value="Servicios">Servicios</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Selectores de Áreas Originales -->
             <div class="form-grid">
                 <div class="form-group">
                     <label for="selectOrigen">Área de Origen (Dónde estás parado):</label>
@@ -167,6 +188,7 @@
                     <input type="text" id="textoHotspot" required placeholder="Ej. Avanzar al Edificio de Sistemas">
                 </div>
             </div>
+            
             <button type="submit" class="btn-submit btn-hotspot">Crear Flecha de Navegación</button>
             <p id="msjHotspotEstado" style="font-weight: bold; margin-top: 10px;"></p>
         </form>
@@ -182,21 +204,20 @@
     <!-- tabla donde salen todos los lugares que ya subimos a firebase -->
     <section class="panel-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-    <h3 style="color: #312e81; margin: 0;">Áreas Registradas en el Campus</h3>
-    
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <label for="filtroCategoria" style="font-weight: 600; color: #475569;">Filtrar por Categoría:</label>
-        <select id="filtroCategoria" style="padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; background: white;">
-            <option value="Todas">Todas las Categorías</option>
-            <option value="Accesos">Accesos</option>
-            <option value="Andadores">Andadores</option>
-            <option value="Edificios">Edificios</option>
-            <option value="Edificios">Aulas</option>
-            <option value="Laboratorios">Laboratorios</option>
-            <option value="Servicios">Servicios</option>
-        </select>
-    </div>
-</div>
+            <h3 style="color: #312e81; margin: 0; border: none;">Áreas Registradas en el Campus</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label for="filtroCategoria" style="font-weight: 600; color: #475569;">Filtrar por Categoría:</label>
+                <select id="filtroCategoria" style="padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; background: white;">
+                    <option value="Todas">Todas las Categorías</option>
+                    <option value="Accesos">Accesos</option>
+                    <option value="Andadores">Andadores</option>
+                    <option value="Edificios">Edificios</option>
+                    <option value="Aulas">Aulas</option>
+                    <option value="Laboratorios">Laboratorios</option>
+                    <option value="Servicios">Servicios</option>
+                </select>
+            </div>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -222,16 +243,7 @@
                 <button class="btn-cerrar" onclick="cerrarModalHotspots()">&times;</button>
             </div>
             <div id="listaHotspots">
-                <div id="editorHotspot" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-    <h4 style="margin-bottom: 10px; color: #1e293b;">Editar Texto de la Flecha</h4>
-    <input type="text" id="inputEditarTexto" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
-    <input type="hidden" id="hiddenNodoId">
-    <input type="hidden" id="hiddenHotspotIndex">
-    <div style="display: flex; gap: 10px;">
-        <button id="btnGuardarEdicion" style="background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Guardar</button>
-        <button id="btnCancelarEdicionTexto" style="background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Cancelar</button>
-    </div>
-</div>
+                <!-- Se inyectan con javascript -->
             </div>
         </div>
     </div>
