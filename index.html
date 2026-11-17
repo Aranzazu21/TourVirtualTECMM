@@ -84,6 +84,47 @@
         <span>💬</span> Asistente Virtual
     </button>
 
+    <!-- Botón Flotante Buzón de Quejas y Sugerencias (Ubicado arriba del botón de Asistente Virtual) -->
+    <button id="btnAbrirBuzon" style="position: fixed; bottom: 80px; right: 20px; z-index: 998; background: #ffffff; color: #1B396A; border: 2px solid #1B396A; padding: 10px 18px; border-radius: 30px; font-weight: bold; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 6px;" title="Enviar queja o sugerencia">
+        ✉️ Buzón
+    </button>
+
+    <!-- Modal Buzón de Quejas y Sugerencias -->
+    <div id="modalBuzon" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 15px;">
+        <div style="background: #fff; border-radius: 12px; max-width: 420px; width: 100%; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: sans-serif;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #1B396A;">✉️ Buzón de Quejas y Sugerencias</h3>
+                <button id="btnCerrarBuzon" type="button" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666;">✕</button>
+            </div>
+
+            <form id="formBuzon" style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: bold; color: #333;">Tipo de comentario:</label>
+                    <select id="buzonTipo" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-top: 4px;">
+                        <option value="Sugerencia">💡 Sugerencia de mejora</option>
+                        <option value="Queja">⚠️ Queja o reporte</option>
+                        <option value="Accesibilidad">♿ Accesibilidad / Voz</option>
+                        <option value="Otro">💬 Otro comentario</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: bold; color: #333;">Tu Nombre o Matrícula (Opcional):</label>
+                    <input type="text" id="buzonRemitente" placeholder="Anónimo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-top: 4px; box-sizing: border-box;">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: bold; color: #333;">Mensaje:</label>
+                    <textarea id="buzonMensaje" rows="4" required placeholder="Describe tu queja o sugerencia sobre el recorrido o el campus..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-top: 4px; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+
+                <button type="submit" id="btnEnviarBuzon" style="background: #1B396A; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">
+                    Enviar al Administrador
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
     <script type="module" src="js/app.js"></script>

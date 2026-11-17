@@ -1,9 +1,7 @@
 import { Hotspots } from './modules/Hotspots.js';
-// Importamos la conexión a Firebase
 import { db } from "./services/FirebaseService.js";
 import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-// Importamos las clases 
+import { BuzonManager } from './modules/BuzonManager.js';
 import { TourViewer } from './modules/TourViewer.js';
 import { UIController } from './modules/UIController.js';
 import { Chatbot } from './modules/Chatbot.js';
@@ -14,55 +12,59 @@ let uiController = null;
 let chatbot = null;
 
 window.addEventListener("DOMContentLoaded", () => {
+    const buzon = new BuzonManager();
+    buzon.inicializarVistaUsuario();
     
-    // 1. Escuchar la base de datos en tiempo real
+    // escuchar la base de datos en tiempo real
     onSnapshot(collection(db, "lugares"), (snapshot) => {
-        lugaresCampusNube = []; // Limpiamos el arreglo local
+        lugaresCampusNube = [];
 
         if (snapshot.empty) {
             console.warn("No hay áreas registradas en Firebase aún.");
             return;
         }
 
-        // Transformamos los datos de Firebase al formato que necesita TourViewer.js
+        // transformar los datos de firebase al formato del tour y chatbot
         snapshot.forEach((doc) => {
             const data = doc.data();
             
             lugaresCampusNube.push({
-                id: data.id,
-                nombre: data.nombre,
+                id: data.id || doc.id,
+                nombre: data.nombre || "",
                 categoria: data.categoria || "General",
                 carrera: data.categoria || "general",
-                descripcion: data.descripcion,
-                imagen: data.imagen,
-                
-                // <-- USAMOS EL NUEVO MÓDULO PARA FORMATEAR LOS DATOS -->
+                descripcion: data.descripcion || "",
+                imagen: data.imagen || "",
+                keywords: data.keywords || [],
+                mensajeVoz: data.mensajeVoz || "",
                 hotSpots: Hotspots.mapearDesdeFirebase(data.hotSpots)
             });
         });
 
-        // 2. Si es la primera vez que carga, inicializamos todo el sistema 
+        // si es la primera vez que carga inicializamos todo el sistema
         if (!tourViewer && lugaresCampusNube.length > 0) {
             inicializarSistema(lugaresCampusNube);
         } else if (tourViewer) {
-           
+            // actualizar los datos del chatbot en tiempo real si se edita algo en el admin
+            if (chatbot) {
+                chatbot.lugares = lugaresCampusNube;
+            }
             console.log("Se detectaron cambios en la BD. Recarga la página para aplicar los nuevos nodos.");
         }
     });
-
 });
 
 function inicializarSistema(lugares) {
     const todosLosIds = lugares.map(lugar => lugar.id);
 
-    // Instanciar Controlador de Interfaz HTML
+    // instanciar controlador de interfaz html
     uiController = new UIController(lugares, todosLosIds);
 
-    // Instanciar Motor 360° con callback para actualizar la UI al cambiar de escena
+    // instanciar motor 360 con callback para actualizar la ui al cambiar de escena
     tourViewer = new TourViewer('panorama', lugares, (idEscenaActual) => {
         uiController.actualizarDetalles(idEscenaActual);
         
-        // Actualizar la etiqueta superior con el nombre del lugar actual
+        // actualizar la etiqueta superior con el nombre del lugar actual
         const lugarActual = lugares.find(l => l.id === idEscenaActual);
         const tvLugarActual = document.getElementById("tvLugarActual");
         if (tvLugarActual && lugarActual) {
@@ -70,38 +72,32 @@ function inicializarSistema(lugares) {
         }
     });
 
-    // Forzar siempre el inicio en la Entrada Principal
-    // (Verifica si el ID "entrada" existe, si no, toma el primero que encuentre)
+    // forzar siempre el inicio en la entrada principal
     const escenaInicial = lugares.some(lugar => lugar.id === "entrada") ? "entrada" : (lugares[0] ? lugares[0].id : "entrada");
     
     tourViewer.inicializar(escenaInicial);
-    // Instanciar Chatbot
+
+    // instanciar chatbot
     chatbot = new Chatbot(tourViewer, uiController, lugares);
     chatbot.inicializar();
 
-    // ==========================================
-    // LÓGICA DEL MENÚ DESPLEGABLE RÁPIDO (CON FILTRO)
-    // ==========================================
+    // logica del menu desplegable rapido con filtro
     const navContenedor = document.getElementById("menuNavegacion");
     const btnToggleMenu = document.getElementById("btnToggleMenu");
     const filtroCampus = document.getElementById("filtroCampus");
 
-    // Función para dibujar los botones del menú, aplicando el filtro si existe
     function dibujarBotonesMenu() {
         if (!navContenedor) return;
         
-        navContenedor.innerHTML = ""; // Limpiamos el menú actual
+        navContenedor.innerHTML = "";
         
-        // Obtenemos la categoría elegida (si el filtro existe en el HTML, si no, mostramos "Todas")
         const categoriaSeleccionada = filtroCampus ? filtroCampus.value : "Todas";
 
-        // Filtramos la lista de lugares 
         let lugaresParaMostrar = lugares; 
         if (categoriaSeleccionada !== "Todas") {
             lugaresParaMostrar = lugares.filter(lugar => lugar.categoria === categoriaSeleccionada);
         }
 
-        // Si la categoría está vacía, mostramos un mensaje bonito
         if (lugaresParaMostrar.length === 0) {
             const msj = document.createElement("div");
             msj.style.padding = "10px";
@@ -112,7 +108,6 @@ function inicializarSistema(lugares) {
             return;
         }
 
-        // Dibujamos los botones de las áreas filtradas
         lugaresParaMostrar.forEach((lugar) => {
             const btn = document.createElement("button");
             btn.className = "btn-nav";
@@ -128,23 +123,19 @@ function inicializarSistema(lugares) {
     }
 
     if (btnToggleMenu && navContenedor) {
-        // 1. Abrir/Cerrar el menú al presionar "Explorar Campus"
         btnToggleMenu.addEventListener("click", (e) => {
             e.stopPropagation(); 
             navContenedor.classList.toggle("show");
         });
 
-        // 2. Cerrar el menú si haces clic afuera
         document.addEventListener("click", (e) => {
             if (!e.target.closest(".nav-dropdown-container")) {
                 navContenedor.classList.remove("show");
             }
         });
 
-        // 3. Dibujar el menú inicialmente con todas las opciones
         dibujarBotonesMenu();
 
-        // 4. Si el usuario cambia el filtro de categoría, re-dibujamos el menú al instante
         if (filtroCampus) {
             filtroCampus.addEventListener("change", () => {
                 dibujarBotonesMenu();
@@ -152,7 +143,7 @@ function inicializarSistema(lugares) {
         }
     }
 
-    // Filtros
+    // filtros
     const selectCarreras = document.getElementById("selectCarreras");
     if (selectCarreras) {
         selectCarreras.addEventListener("change", (e) => {

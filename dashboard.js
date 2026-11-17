@@ -1,27 +1,28 @@
 import { db, auth } from "./js/services/FirebaseService.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { collection, doc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
+import { BuzonManager } from "./js/modules/BuzonManager.js";
 import { inicializarChatAdmin } from "./js/modules/chatAdmin.js";
 
 let lugaresRegistrados = []; 
 let modoEdicion = false; 
+const buzonAdmin = new BuzonManager();
 
-// ==========================================
-// 1. VERIFICAR SESIÓN
-// ==========================================
+// verificar sesion y arrancar modulos
 onAuthStateChanged(auth, (user) => {
-    if (!user) window.location.href = "admin.html";
-    else cargarNodosEnTabla();
+    if (!user) {
+        window.location.href = "admin.html";
+    } else {
+        cargarNodosEnTabla();
+        buzonAdmin.inicializarVistaAdmin();
+    }
 });
 
 document.getElementById("btnLogout").addEventListener("click", () => {
     signOut(auth).then(() => window.location.href = "admin.html");
 });
 
-// ==========================================
-// 2. CARGAR TABLA, LLENAR SELECTS Y FILTROS
-// ==========================================
+// cargar tabla llenar selects y filtros
 function cargarNodosEnTabla() {
     const filtroCategoriaTabla = document.getElementById("filtroCategoria");
     
@@ -31,6 +32,9 @@ function cargarNodosEnTabla() {
         snapshot.forEach((docSnapshot) => {
             lugaresRegistrados.push(docSnapshot.data()); 
         });
+
+        // pasar los lugares actualizados al modulo del chatbot
+        inicializarChatAdmin(lugaresRegistrados);
 
         dibujarTablaAreas();
 
@@ -57,7 +61,7 @@ function cargarNodosEnTabla() {
     }
 }
 
-// ACTUALIZA LOS SELECTORES DEL FORMULARIO SEGÚN LOS FILTROS ELEGIDOS
+// actualiza los selectores del formulario segun los filtros elegidos
 function actualizarSelectoresHotspots(categoriaOrigen, categoriaDestino) {
     const selectOrigen = document.getElementById("selectOrigen");
     const selectDestino = document.getElementById("selectDestino");
@@ -73,13 +77,11 @@ function actualizarSelectoresHotspots(categoriaOrigen, categoriaDestino) {
     const catOrigenLimpia = String(categoriaOrigen).trim().toLowerCase();
     const catDestinoLimpia = String(categoriaDestino).trim().toLowerCase();
 
-    // Filtramos para el Origen (Búsqueda exacta, Edificios y Aulas están separados)
     let lugaresOrigen = lugaresRegistrados;
     if (catOrigenLimpia !== "todas") {
         lugaresOrigen = lugaresRegistrados.filter(lugar => String(lugar.categoria).trim().toLowerCase() === catOrigenLimpia);
     }
 
-    // Filtramos para el Destino (Búsqueda exacta)
     let lugaresDestino = lugaresRegistrados;
     if (catDestinoLimpia !== "todas") {
         lugaresDestino = lugaresRegistrados.filter(lugar => String(lugar.categoria).trim().toLowerCase() === catDestinoLimpia);
@@ -122,7 +124,6 @@ function dibujarTablaAreas() {
 
     let areasFiltradas = lugaresRegistrados;
 
-    // Filtro estricto para la tabla (sin mezclar)
     if (filtro !== "Todas") {
         const filtroLimpio = String(filtro).trim().toLowerCase();
         areasFiltradas = lugaresRegistrados.filter(l => String(l.categoria).trim().toLowerCase() === filtroLimpio);
@@ -153,9 +154,7 @@ function dibujarTablaAreas() {
     });
 }
 
-// ==========================================
-// 3. GESTIÓN DE ÁREAS (CREAR / EDITAR / ELIMINAR)
-// ==========================================
+// gestion de areas crear editar eliminar
 let idOriginalEdicion = ""; 
 
 window.editarNodo = (id) => {
@@ -208,7 +207,9 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                     categoria: document.getElementById("categoriaNodo").value,
                     descripcion: document.getElementById("descripcionNodo").value.trim(),
                     imagen: document.getElementById("imagenNodo").value.trim(),
-                    hotSpots: lugarOriginal.hotSpots || [] 
+                    hotSpots: lugarOriginal.hotSpots || [],
+                    keywords: lugarOriginal.keywords || [],
+                    mensajeVoz: lugarOriginal.mensajeVoz || ""
                 });
                 
                 await deleteDoc(doc(db, "lugares", idOriginalEdicion)); 
@@ -230,7 +231,9 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                 categoria: document.getElementById("categoriaNodo").value,
                 descripcion: document.getElementById("descripcionNodo").value.trim(),
                 imagen: document.getElementById("imagenNodo").value.trim(),
-                hotSpots: [] 
+                hotSpots: [],
+                keywords: [],
+                mensajeVoz: ""
             });
             msj.style.color = "green"; msj.innerText = "¡Área registrada!";
             document.getElementById("formNodo").reset();
@@ -244,9 +247,7 @@ window.eliminarNodo = async (id) => {
     }
 };
 
-// ==========================================
-// 4. CREAR HOTSPOTS
-// ==========================================
+// crear hotspots
 const formHotspot = document.getElementById("formHotspot");
 if (formHotspot) {
     formHotspot.addEventListener("submit", async (e) => {
@@ -275,9 +276,7 @@ if (formHotspot) {
     });
 }
 
-// ==========================================
-// 5. GESTIÓN INDIVIDUAL DE HOTSPOTS (MODAL)
-// ==========================================
+// gestion individual de hotspots modal
 window.abrirModalHotspots = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;

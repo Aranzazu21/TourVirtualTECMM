@@ -25,7 +25,7 @@
             z-index: -1;
         }
 
-       .admin-header { display: flex; justify-content: space-between; align-items: center; background-color: rgba(38, 11, 123, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: white; padding: 15px 30px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; background-color: rgba(38, 11, 123, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: white; padding: 15px 30px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
         .header-title-container { display: flex; align-items: center; gap: 20px; }
         .header-logo { height: 45px; object-fit: contain; }
         .admin-header h2 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 1.3rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
@@ -33,14 +33,14 @@
         .btn-logout { background-color: #f43f5e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-logout:hover { background-color: #e11d48; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
         
-       .panel-card { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 25px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.4); }
+        .panel-card { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 25px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.4); }
         .panel-card h3 { color: #1e293b; margin-bottom: 20px; font-size: 1.2rem; border-bottom: 2px solid rgba(0, 0, 0, 0.1); padding-bottom: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label { font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; color: #1e293b; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
-       .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 8px; background-color: rgba(255, 255, 255, 0.4); color: #1e293b; font-size: 0.9rem; outline: none; transition: border 0.2s ease, background-color 0.2s ease; }
-       .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #260b7b; background-color: rgba(255, 255, 255, 0.8); box-shadow: 0 0 0 3px rgba(38, 11, 123, 0.1); }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 8px; background-color: rgba(255, 255, 255, 0.4); color: #1e293b; font-size: 0.9rem; outline: none; transition: border 0.2s ease, background-color 0.2s ease; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #260b7b; background-color: rgba(255, 255, 255, 0.8); box-shadow: 0 0 0 3px rgba(38, 11, 123, 0.1); }
         .form-group input:disabled { background-color: #e2e8f0; cursor: not-allowed; color: #64748b; }
         .full-width { grid-column: span 2; }
         
@@ -88,7 +88,7 @@
         </div>
     </header>
 
-    <!-- formulario 1: para registrar y editar las areas del tour -->
+    <!-- formulario 1 para registrar y editar las areas del tour -->
     <section class="panel-card">
         <h3 id="tituloFormularioNodo">1. Registrar Nueva Área / Nodo 360°</h3>
         <form id="formNodo">
@@ -129,7 +129,7 @@
         </form>
     </section>
 
-    <!-- formulario 2: para crear las flechitas que conectan los lugares -->
+    <!-- formulario 2 para crear las flechitas que conectan los lugares -->
     <section class="panel-card">
         <h3>2. Agregar Flecha de Navegación (Hotspot)</h3>
         <form id="formHotspot">
@@ -161,7 +161,7 @@
                 </div>
             </div>
 
-            <!-- Selectores de Áreas Originales -->
+            <!-- selectores de areas -->
             <div class="form-grid">
                 <div class="form-group">
                     <label for="selectOrigen">Área de Origen (Dónde estás parado):</label>
@@ -194,14 +194,25 @@
         </form>
     </section>
 
-    <!-- seccion 3: acceso al entrenamiento de la inteligencia artificial -->
+    <!-- seccion 3 acceso al entrenamiento del bot -->
     <section class="panel-card">
         <h3>3. Inteligencia Artificial (Chatbot y Voz)</h3>
         <p style="margin-bottom: 15px; color: #334155; font-size: 0.95rem;">Entrena al asistente virtual asignando palabras clave de búsqueda y guiones de voz a cada área registrada en tu campus.</p>
         <button id="btnAbrirPanelBot" class="btn-submit" style="background-color: #10b981; margin-top: 0;">Abrir Panel de Entrenamiento</button>
     </section>
 
-    <!-- tabla donde salen todos los lugares que ya subimos a firebase -->
+    <!-- seccion 4 buzon de quejas y sugerencias -->
+    <section class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(0, 0, 0, 0.1); padding-bottom: 10px; margin-bottom: 20px;">
+            <h3 style="margin: 0; border: none; padding: 0;">4. Buzón de Quejas y Sugerencias</h3>
+            <span id="contadorBuzon" style="background-color: #260b7b; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">0 mensajes</span>
+        </div>
+        <div id="listaMensajesBuzon" style="display: flex; flex-direction: column; gap: 12px;">
+            <p style="color: #334155; font-weight: 500;">Cargando mensajes del buzón...</p>
+        </div>
+    </section>
+
+    <!-- tabla donde salen todos los lugares -->
     <section class="panel-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="color: #312e81; margin: 0; border: none;">Áreas Registradas en el Campus</h3>
@@ -235,7 +246,7 @@
         </table>
     </section>
 
-    <!-- ventana modal para ver y borrar las flechitas de un lugar -->
+    <!-- ventana modal para ver y borrar flechitas -->
     <div id="modalHotspots" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -243,7 +254,21 @@
                 <button class="btn-cerrar" onclick="cerrarModalHotspots()">&times;</button>
             </div>
             <div id="listaHotspots">
-                <!-- Se inyectan con javascript -->
+                <!-- se inyectan con javascript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ventana modal para entrenar al chatbot y voz -->
+    <div id="modalChatAdmin" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Gestión de Asistente de Voz y Chatbot</h3>
+                <button id="btnCerrarChatAdmin" class="btn-cerrar">&times;</button>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-bottom: 15px;">Asigna las palabras con las que el bot encontrará este lugar y el texto que leerá en voz alta.</p>
+            <div id="listaChatbotNodos">
+                <!-- se inyectan con javascript -->
             </div>
         </div>
     </div>
