@@ -348,3 +348,363 @@ body, html {
     transform: scale(1.22);
     background-color: #f43f5e;
 }
+
+/* =========================================
+   NUEVAS CLASES DEL ENCABEZADO (Limpias)
+   ========================================= */
+.nav-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.filtro-select {
+    background-color: #2e1065;
+    color: white;
+    border: 2px solid #4c1d95;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    font-size: 14px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+/* =========================================
+   ESTILOS DE LOS BOTONES FLOTANTES (PC)
+   ========================================= */
+.buzon-floating-btn {
+    position: fixed; 
+    bottom: 80px; 
+    right: 20px; 
+    z-index: 998; 
+    background: #ffffff; 
+    color: #1B396A; 
+    border: 2px solid #1B396A; 
+    padding: 10px 18px; 
+    border-radius: 30px; 
+    font-weight: bold; 
+    font-size: 0.95rem; 
+    cursor: pointer; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25); 
+    display: flex; 
+    align-items: center; 
+    gap: 6px;
+}
+
+.chat-floating-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 998;
+    background: #1B396A;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* =========================================
+   POSICIÓN DE LOS ELEMENTOS INFERIORES
+   ========================================= */
+.info-card {
+    position: absolute;
+    bottom: 20px;
+    left: 5%;
+    width: 90%;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   NUEVAS CLASES DEL ENCABEZADO (Agrupado)
+   ========================================= */
+.top-bar {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Centrado en PC */
+    background-color: rgba(38, 11, 123, 0.95);
+    padding: 12px 25px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    width: auto;
+    min-width: 60%;
+    max-width: 90vw;
+}
+
+.top-bar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.top-logo {
+    height: 45px;
+    object-fit: contain;
+}
+
+.nav-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.filtro-select {
+    background-color: #2e1065;
+    color: white;
+    border: 2px solid #4c1d95;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    font-size: 14px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+/* =========================================
+   ESTILOS DE LOS BOTONES FLOTANTES Y TARJETA (PC)
+   ========================================= */
+.buzon-floating-btn {
+    position: fixed; bottom: 80px; right: 20px; z-index: 998; 
+    background: #ffffff; color: #1B396A; border: 2px solid #1B396A; 
+    padding: 10px 18px; border-radius: 30px; font-weight: bold; font-size: 0.95rem; 
+    cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 6px;
+}
+
+.chat-floating-btn {
+    position: fixed; bottom: 20px; right: 20px; z-index: 998; background: #1B396A;
+    color: white; border: none; padding: 12px 20px; border-radius: 30px;
+    font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.info-card {
+    position: absolute; bottom: 20px; left: 5%; width: 90%; z-index: 100; box-sizing: border-box;
+}
+
+/* =========================================
+   1. ENCABEZADO PRINCIPAL Y LOGO (PC)
+   ========================================= */
+/* Logo flotando libremente en la esquina */
+.logo-flotante {
+    position: absolute !important;
+    top: 25px !important;
+    left: 30px !important;
+    height: 65px !important;
+    z-index: 1000 !important;
+    /* Resplandor sutil para que resalte sobre cualquier cielo/edificio */
+    filter: drop-shadow(0px 2px 4px rgba(255,255,255,0.7)) !important; 
+}
+
+/* Barra morada reducida a su tamaño mínimo necesario */
+.top-bar {
+    position: absolute !important;
+    top: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background-color: rgba(38, 11, 123, 0.95) !important;
+    padding: 10px 25px !important;
+    border-radius: 25px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 20px !important;
+    z-index: 100 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+    width: max-content !important; /* Se ajusta solo a su contenido */
+    max-width: 70vw !important;
+}
+
+.badge-lugar {
+    font-size: 1.1rem !important;
+    font-weight: bold !important;
+    color: white !important;
+    text-transform: uppercase !important;
+    text-align: left !important;
+    white-space: nowrap !important; /* Evita que el texto baje de renglón en PC */
+}
+
+.nav-controls {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 15px !important;
+    align-items: center !important;
+}
+
+.filtro-select, .btn-explorar {
+    background-color: #2e1065 !important;
+    color: white !important;
+    border: 2px solid #4c1d95 !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+}
+
+.btn-explorar {
+    background-color: #f59e0b !important;
+    border-color: #f59e0b !important;
+}
+
+/* =========================================
+   2. ELEMENTOS INFERIORES (PC)
+   ========================================= */
+.info-card {
+    position: absolute !important;
+    bottom: 25px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 380px !important; /* Tarjeta mucho más chica */
+    max-width: 90vw !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    padding: 15px !important;
+    border-radius: 12px !important;
+    text-align: center !important;
+    z-index: 100 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+}
+
+/* Reducimos ligeramente la fuente del título de la tarjeta */
+.info-card h2 {
+    font-size: 1.1rem !important;
+    margin-bottom: 5px !important;
+}
+.info-card p {
+    font-size: 0.85rem !important;
+    margin: 0 !important;
+}
+
+.buzon-floating-btn {
+    position: fixed !important;
+    bottom: 30px !important;
+    left: 30px !important;
+    right: auto !important;
+    width: auto !important;
+    background: #ffffff !important;
+    color: #1B396A !important;
+    border: 2px solid #1B396A !important;
+    padding: 12px 25px !important;
+    border-radius: 30px !important;
+    font-weight: bold !important;
+    font-size: 1rem !important;
+    z-index: 998 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+}
+
+.chat-floating-btn {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    left: auto !important;
+    width: auto !important;
+    background: #1B396A !important;
+    color: white !important;
+    border: none !important;
+    padding: 14px 25px !important;
+    border-radius: 30px !important;
+    font-weight: bold !important;
+    font-size: 1.1rem !important;
+    z-index: 998 !important;
+    margin: 0 !important;
+}
+
+/* =========================================
+   3. RESPONSIVE (CELULARES)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. Logo con caja blanca (sin distorsionarse) */
+    .logo-flotante {
+        top: 12px !important;
+        left: 5% !important;
+        height: 45px !important; /* Altura de la caja blanca */
+        width: 120px !important; /* Ancho fijo para que no se apachurre */
+        object-fit: contain !important; /* Mantiene la resolución y no lo estira */
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        padding: 5px !important;
+        border-radius: 8px !important;
+        filter: none !important; 
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+    }
+
+    /* 2. Barra Superior (Cuadro Azul/Morado) */
+    .top-bar {
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        flex-direction: column !important;
+        padding: 15px 5% 15px 5% !important;
+        border-radius: 0 0 15px 15px !important;
+        box-sizing: border-box !important;
+        gap: 12px !important;
+    }
+
+    /* 3. Texto del Lugar (Alineado a la derecha para no tapar el logo) */
+    .badge-lugar {
+        width: 100% !important;
+        text-align: right !important;
+        font-size: 0.95rem !important;
+        white-space: normal !important;
+        padding-left: 100px !important; /* Protege el espacio que ocupa la cajita del logo */
+        box-sizing: border-box !important;
+        min-height: 50px !important; /* Misma altura de la cajita del logo */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+
+    /* 4. Resto de controles a pantalla completa */
+    .nav-controls {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+    
+    .filtro-select, .nav-dropdown-container, .btn-explorar {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 5. Elementos de la parte baja */
+    .info-card {
+        bottom: 15px !important;
+        left: 5% !important;
+        transform: none !important;
+        width: 90% !important;
+        text-align: left !important;
+        padding: 15px !important;
+    }
+
+    .chat-floating-btn {
+        bottom: 140px !important;
+        right: 5% !important;
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .buzon-floating-btn {
+        bottom: 140px !important;
+        left: 5% !important;
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
+    }
+}

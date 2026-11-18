@@ -8,7 +8,9 @@ let lugaresRegistrados = [];
 let modoEdicion = false; 
 const buzonAdmin = new BuzonManager();
 
-// verificar sesion y arrancar modulos
+// ==========================================
+// 1. VERIFICAR SESIÓN Y ARRANCAR MÓDULOS
+// ==========================================
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = "admin.html";
@@ -22,9 +24,12 @@ document.getElementById("btnLogout").addEventListener("click", () => {
     signOut(auth).then(() => window.location.href = "admin.html");
 });
 
-// cargar tabla llenar selects y filtros
+// ==========================================
+// 2. CARGAR TABLA, SELECTORES Y BUSCADOR
+// ==========================================
 function cargarNodosEnTabla() {
     const filtroCategoriaTabla = document.getElementById("filtroCategoria");
+    const buscadorNodos = document.getElementById("buscadorNodos"); 
     
     onSnapshot(collection(db, "lugares"), (snapshot) => {
         lugaresRegistrados = []; 
@@ -33,10 +38,9 @@ function cargarNodosEnTabla() {
             lugaresRegistrados.push(docSnapshot.data()); 
         });
 
-        // pasar los lugares actualizados al modulo del chatbot
         inicializarChatAdmin(lugaresRegistrados);
-
         dibujarTablaAreas();
+        actualizarMetricas(lugaresRegistrados);
 
         const catOrigen = document.getElementById("filtroCategoriaOrigen") ? document.getElementById("filtroCategoriaOrigen").value : "Todas";
         const catDestino = document.getElementById("filtroCategoriaDestino") ? document.getElementById("filtroCategoriaDestino").value : "Todas";
@@ -45,6 +49,10 @@ function cargarNodosEnTabla() {
 
     if(filtroCategoriaTabla) {
         filtroCategoriaTabla.addEventListener("change", dibujarTablaAreas);
+    }
+
+    if(buscadorNodos) {
+        buscadorNodos.addEventListener("input", dibujarTablaAreas);
     }
 
     const filtroCategoriaOrigen = document.getElementById("filtroCategoriaOrigen");
@@ -61,7 +69,6 @@ function cargarNodosEnTabla() {
     }
 }
 
-// actualiza los selectores del formulario segun los filtros elegidos
 function actualizarSelectoresHotspots(categoriaOrigen, categoriaDestino) {
     const selectOrigen = document.getElementById("selectOrigen");
     const selectDestino = document.getElementById("selectDestino");
@@ -114,11 +121,12 @@ function actualizarSelectoresHotspots(categoriaOrigen, categoriaDestino) {
 function dibujarTablaAreas() {
     const tablaBody = document.getElementById("tablaNodosBody");
     const filtro = document.getElementById("filtroCategoria") ? document.getElementById("filtroCategoria").value : "Todas";
+    const busqueda = document.getElementById("buscadorNodos") ? document.getElementById("buscadorNodos").value.trim().toLowerCase() : "";
     
     tablaBody.innerHTML = "";
 
     if (lugaresRegistrados.length === 0) {
-        tablaBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No hay áreas registradas.</td></tr>`;
+        tablaBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No hay áreas registradas.</td></tr>`;
         return;
     }
 
@@ -126,16 +134,24 @@ function dibujarTablaAreas() {
 
     if (filtro !== "Todas") {
         const filtroLimpio = String(filtro).trim().toLowerCase();
-        areasFiltradas = lugaresRegistrados.filter(l => String(l.categoria).trim().toLowerCase() === filtroLimpio);
+        areasFiltradas = areasFiltradas.filter(l => String(l.categoria).trim().toLowerCase() === filtroLimpio);
+    }
+
+    if (busqueda !== "") {
+        areasFiltradas = areasFiltradas.filter(l => 
+            String(l.nombre).toLowerCase().includes(busqueda) || 
+            String(l.id).toLowerCase().includes(busqueda)
+        );
     }
 
     if (areasFiltradas.length === 0) {
-        tablaBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">No hay áreas en esta categoría.</td></tr>`;
+        tablaBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b;">No se encontraron áreas.</td></tr>`;
         return;
     }
 
     areasFiltradas.forEach(lugar => {
         const numHotspots = lugar.hotSpots ? lugar.hotSpots.length : 0;
+        const totalVisitas = lugar.visitas || 0; 
         const fila = document.createElement("tr");
 
         fila.innerHTML = `
@@ -143,18 +159,23 @@ function dibujarTablaAreas() {
             <td>${lugar.nombre}</td>
             <td>${lugar.categoria}</td>
             <td><code>${lugar.imagen}</code></td>
+            <td style="color: #10b981; font-weight: bold;">${totalVisitas}</td>
             <td><span class="badge-hotspots">${numHotspots}</span></td>
             <td>
-                <button class="btn-editar" onclick="editarNodo('${lugar.id}')">Editar</button>
-                <button class="btn-gestionar" onclick="abrirModalHotspots('${lugar.id}')">Flechas</button>
-                <button class="btn-eliminar" onclick="eliminarNodo('${lugar.id}')">Eliminar</button>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button class="btn-editar" onclick="editarNodo('${lugar.id}')">Editar</button>
+                    <button class="btn-gestionar" onclick="abrirModalHotspots('${lugar.id}')">Flechas</button>
+                    <button class="btn-eliminar" onclick="eliminarNodo('${lugar.id}')">Eliminar</button>
+                </div>
             </td>
         `;
         tablaBody.appendChild(fila);
     });
 }
 
-// gestion de areas crear editar eliminar
+// ==========================================
+// 3. GESTIÓN DE ÁREAS (CREAR / EDITAR / ELIMINAR)
+// ==========================================
 let idOriginalEdicion = ""; 
 
 window.editarNodo = (id) => {
@@ -209,7 +230,8 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                     imagen: document.getElementById("imagenNodo").value.trim(),
                     hotSpots: lugarOriginal.hotSpots || [],
                     keywords: lugarOriginal.keywords || [],
-                    mensajeVoz: lugarOriginal.mensajeVoz || ""
+                    mensajeVoz: lugarOriginal.mensajeVoz || "",
+                    visitas: lugarOriginal.visitas || 0
                 });
                 
                 await deleteDoc(doc(db, "lugares", idOriginalEdicion)); 
@@ -233,7 +255,8 @@ document.getElementById("formNodo").addEventListener("submit", async (e) => {
                 imagen: document.getElementById("imagenNodo").value.trim(),
                 hotSpots: [],
                 keywords: [],
-                mensajeVoz: ""
+                mensajeVoz: "",
+                visitas: 0
             });
             msj.style.color = "green"; msj.innerText = "¡Área registrada!";
             document.getElementById("formNodo").reset();
@@ -247,7 +270,9 @@ window.eliminarNodo = async (id) => {
     }
 };
 
-// crear hotspots
+// ==========================================
+// 4. CREAR HOTSPOTS
+// ==========================================
 const formHotspot = document.getElementById("formHotspot");
 if (formHotspot) {
     formHotspot.addEventListener("submit", async (e) => {
@@ -276,7 +301,9 @@ if (formHotspot) {
     });
 }
 
-// gestion individual de hotspots modal
+// ==========================================
+// 5. MODAL GESTIÓN HOTSPOTS
+// ==========================================
 window.abrirModalHotspots = (id) => {
     const lugar = lugaresRegistrados.find(l => l.id === id);
     if (!lugar) return;
@@ -397,3 +424,63 @@ window.guardarEdicionHotspot = async (nodoId, hotspotIndex) => {
         alert("Error al guardar: " + error.message);
     }
 };
+
+// ==========================================
+// 6. ANALÍTICAS Y MÉTRICAS
+// ==========================================
+function actualizarMetricas(lugares) {
+    const elTotalVisitas = document.getElementById("metricaTotalVisitas");
+    const elTopLugar = document.getElementById("metricaTopLugar");
+    const elTopVisitas = document.getElementById("metricaTopVisitas");
+    const elTotalNodos = document.getElementById("metricaTotalNodos");
+
+    if (!elTotalVisitas || !elTopLugar) return;
+
+    let totalVisitas = 0;
+    let lugarTop = null;
+    let maxVisitas = -1;
+
+    lugares.forEach(lugar => {
+        const visitasLugar = lugar.visitas || 0;
+        totalVisitas += visitasLugar;
+
+        if (visitasLugar > maxVisitas) {
+            maxVisitas = visitasLugar;
+            lugarTop = lugar;
+        }
+    });
+
+    elTotalNodos.innerText = lugares.length;
+    elTotalVisitas.innerText = totalVisitas.toLocaleString();
+
+    if (lugarTop && maxVisitas > 0) {
+        elTopLugar.innerText = lugarTop.nombre;
+        elTopLugar.title = lugarTop.nombre; 
+        elTopVisitas.innerText = `${maxVisitas.toLocaleString()} visitas`;
+    } else {
+        elTopLugar.innerText = "Aún sin datos";
+        elTopVisitas.innerText = "0 visitas";
+    }
+}
+
+// ==========================================
+// 7. CIERRE DE SESIÓN AUTOMÁTICO POR INACTIVIDAD
+// ==========================================
+let temporizadorInactividad;
+const TIEMPO_MAXIMO_INACTIVIDAD = 20 * 60 * 1000; // 20 minutos
+
+function reiniciarTemporizadorSesion() {
+    clearTimeout(temporizadorInactividad);
+    temporizadorInactividad = setTimeout(() => {
+        alert("Tu sesión se cerró automáticamente por inactividad.");
+        signOut(auth).then(() => {
+            window.location.href = "admin.html";
+        });
+    }, TIEMPO_MAXIMO_INACTIVIDAD);
+}
+
+["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evento => {
+    window.addEventListener(evento, reiniciarTemporizadorSesion);
+});
+
+reiniciarTemporizadorSesion();

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tour Virtual 360° TECMM Zapopan</title>
 
     <!-- Hojas de Estilo -->
@@ -10,20 +10,18 @@
     <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <!-- Logo Institucional -->
-    <img src="assets/imagenes/tecmm.png" alt="Logo TECMM" id="logoTecmm">
+    
+    <!-- Logo Institucional Flotante (Fuera de la barra) -->
+    <img src="assets/imagenes/tecmm.png" alt="Logo TECMM" id="logoTecmm" class="logo-flotante">
 
-    <!-- Encabezado Compacto Minimalista -->
+    <!-- Encabezado Morado Compacto -->
     <header class="top-bar compact">
-        <div class="brand">
-            <span id="tvLugarActual" class="badge-lugar">Cargando...</span>
-        </div>
+        
+        <span id="tvLugarActual" class="badge-lugar">Cargando...</span>
 
-        <!-- Contenedor padre flex para separar el filtro y el botón Explorar -->
-        <div style="display: flex; gap: 12px; align-items: center;">
-            
+        <div class="nav-controls">
             <!-- Filtro de Categorías -->
-            <select id="filtroCampus" style="background-color: #2e1065; color: white; border: 2px solid #4c1d95; border-radius: 20px; padding: 8px 16px; font-weight: 600; cursor: pointer; outline: none; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s ease;">
+            <select id="filtroCampus" class="filtro-select">
                 <option value="Todas">👁️ Todas las áreas</option>
                 <option value="Accesos">🚪 Accesos</option>
                 <option value="Andadores">🚶 Andadores</option>
@@ -33,14 +31,34 @@
                 <option value="Servicios">☕ Servicios</option>
             </select>
 
-            <!-- Contenedor independiente solo para el botón amarillo y su menú blanco -->
-            <div class="nav-dropdown-container" style="position: relative;">
+            <!-- Menú Desplegable -->
+            <div class="nav-dropdown-container">
                 <button id="btnToggleMenu" class="btn-explorar">📍 Explorar Campus ▼</button>
                 <div id="menuNavegacion" class="dropdown-content">
                     <!-- Se inyectan las ubicaciones dinámicamente -->
                 </div>
             </div>
+        </div>
+    </header>
 
+        <!-- Fila Inferior: Filtro y Botón de Explorar -->
+        <div class="nav-controls">
+            <select id="filtroCampus" class="filtro-select">
+                <option value="Todas">👁️ Todas las áreas</option>
+                <option value="Accesos">🚪 Accesos</option>
+                <option value="Andadores">🚶 Andadores</option>
+                <option value="Edificios">🏢 Edificios</option>
+                <option value="Aulas">🏫 Aulas</option>
+                <option value="Laboratorios">🔬 Laboratorios</option>
+                <option value="Servicios">☕ Servicios</option>
+            </select>
+
+            <div class="nav-dropdown-container">
+                <button id="btnToggleMenu" class="btn-explorar">📍 Explorar Campus ▼</button>
+                <div id="menuNavegacion" class="dropdown-content">
+                    <!-- Se inyectan las ubicaciones dinámicamente -->
+                </div>
+            </div>
         </div>
     </header>
 
@@ -53,6 +71,16 @@
         <p id="tvDescripcion">Por favor espera mientras se inicializa el visor 360°.</p>
     </div>
 
+    <!-- Botón Flotante Chatbot (Derecha) -->
+    <button id="btnAbrirChat" class="chat-floating-btn" title="Abrir Asistente">
+        <span>💬</span> Asistente Virtual
+    </button>
+
+    <!-- Botón Flotante Buzón (Izquierda) -->
+    <button id="btnAbrirBuzon" class="buzon-floating-btn" title="Enviar queja o sugerencia">
+        ✉️ Buzón
+    </button>
+
     <!-- Interfaz del Chatbot -->
     <div id="chatWidget" class="chat-widget minimizado">
         <div class="chat-header" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
@@ -60,9 +88,7 @@
                 <button id="btn-mic" type="button" style="background: none; border: none; cursor: pointer; font-size: 0.95rem; color: #1B396A; font-weight: bold; display: flex; align-items: center;" title="Presiona la barra espaciadora o haz clic para hablar">
                     <span id="t-btnMic">🎙️ Hablar</span>
                 </button>
-                <button id="btnLeerOpciones" type="button" style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #1B396A;" title="Escuchar opciones en voz alta">
-                    🔊
-                </button>
+                <button id="btnLeerOpciones" type="button" style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #1B396A;" title="Escuchar opciones en voz alta">🔊</button>
             </div>
             
             <span style="font-weight: 600; font-size: 0.95rem;">Asistente TECMM</span>
@@ -79,16 +105,6 @@
         </div>
     </div>
    
-    <!-- Botón Flotante para reabrir el Chatbot -->
-    <button id="btnAbrirChat" class="chat-floating-btn" title="Abrir Asistente">
-        <span>💬</span> Asistente Virtual
-    </button>
-
-    <!-- Botón Flotante Buzón de Quejas y Sugerencias (Ubicado arriba del botón de Asistente Virtual) -->
-    <button id="btnAbrirBuzon" style="position: fixed; bottom: 80px; right: 20px; z-index: 998; background: #ffffff; color: #1B396A; border: 2px solid #1B396A; padding: 10px 18px; border-radius: 30px; font-weight: bold; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 6px;" title="Enviar queja o sugerencia">
-        ✉️ Buzón
-    </button>
-
     <!-- Modal Buzón de Quejas y Sugerencias -->
     <div id="modalBuzon" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; padding: 15px;">
         <div style="background: #fff; border-radius: 12px; max-width: 420px; width: 100%; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: sans-serif;">
@@ -107,17 +123,14 @@
                         <option value="Otro">💬 Otro comentario</option>
                     </select>
                 </div>
-
                 <div>
                     <label style="font-size: 0.85rem; font-weight: bold; color: #333;">Tu Nombre o Matrícula (Opcional):</label>
                     <input type="text" id="buzonRemitente" placeholder="Anónimo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-top: 4px; box-sizing: border-box;">
                 </div>
-
                 <div>
                     <label style="font-size: 0.85rem; font-weight: bold; color: #333;">Mensaje:</label>
                     <textarea id="buzonMensaje" rows="4" required placeholder="Describe tu queja o sugerencia sobre el recorrido o el campus..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; margin-top: 4px; box-sizing: border-box; resize: vertical;"></textarea>
                 </div>
-
                 <button type="submit" id="btnEnviarBuzon" style="background: #1B396A; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">
                     Enviar al Administrador
                 </button>
